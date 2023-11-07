@@ -94,6 +94,7 @@ class BottomSheetScanNFC(
             }
 
             override fun onError(nfcError: NfcError?) {
+                dismiss()
                 when (nfcError) {
                     NfcError.NOT_SUPPORT -> {
                         listenerErrorOutput(NfcError.NOT_SUPPORT)

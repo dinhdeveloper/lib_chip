@@ -42,7 +42,7 @@ class NfcTagTool private constructor() {
     var mActivity: Activity? = null
     private var nfcAdapter: NfcAdapter? = null
     private var nfcOption: NfcOption? = null
-    private lateinit var nfcCallback: NfcCallback
+    private var nfcCallback: NfcCallback? = null
     private var documentNumber = ""
     private var dateOfBirth = ""
     private var dateOfExpiry = ""
@@ -54,17 +54,6 @@ class NfcTagTool private constructor() {
     constructor(activity: Activity) : this() {
         this.mActivity = activity
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
-        if (nfcAdapter != null && nfcAdapter?.isEnabled == false) {
-            nfcCallback.onError(NfcError.DISABLE)
-        }
-        if (isNfcSupported() == false){
-            nfcCallback.onError(NfcError.NOT_SUPPORT)
-        }
-    }
-
-    private fun isNfcSupported(): Boolean? {
-        val packageManager = mActivity?.packageManager
-        return packageManager?.hasSystemFeature(PackageManager.FEATURE_NFC)
     }
 
     fun handleNfcEvent(intent: Intent?) {
@@ -77,25 +66,25 @@ class NfcTagTool private constructor() {
                         val last9Digits = documentNumber.takeLast(9)
                         documentNumber = last9Digits
                     } else {
-                        nfcCallback.onError(NfcError.DOCUMENT_NUMBER_INVALID)
+                        nfcCallback?.onError(NfcError.DOCUMENT_NUMBER_INVALID)
                     }
                     val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
                     startReadChip(mrzInfo, nfc)
                 }
 
             } else {
-                nfcCallback.onError(NfcError.TAG_INVALID)
+                nfcCallback?.onError(NfcError.TAG_INVALID)
             }
         }
     }
 
     private fun checkValidate(): Boolean {
         return if (dateOfBirth.length < 6 || dateOfBirth.length > 6){
-            nfcCallback.onError(NfcError.DATE_OF_BIRTH_INVALID)
+            nfcCallback?.onError(NfcError.DATE_OF_BIRTH_INVALID)
             false
         }else {
             return if (dateOfExpiry.length < 6 || dateOfExpiry.length > 6){
-                nfcCallback.onError(NfcError.DATE_OF_EXPIRY_INVALID)
+                nfcCallback?.onError(NfcError.DATE_OF_EXPIRY_INVALID)
                 false
             }else {
                 true
@@ -246,7 +235,7 @@ class NfcTagTool private constructor() {
                             cardEid.additionalPersonDetails = personDetails
                         }
                     } catch (e: Exception) {
-                        nfcCallback.onError(NfcError.READ_DATA_FAILURE)
+                        nfcCallback?.onError(NfcError.READ_DATA_FAILURE)
                     } finally {
                         try {
                             passportService?.close()
@@ -256,27 +245,27 @@ class NfcTagTool private constructor() {
                     }
                     CardEidDTO(cardEid, nfcCallback,null)
                 }
-                nfcCallback.onSuccess(cardEidDTO.cardEiD)
+                nfcCallback?.onSuccess(cardEidDTO.cardEiD)
                 cardEidDTO
             } catch (e: Exception) {
                 when (e) {
                     is AccessDeniedException -> {
-                        nfcCallback.onError(NfcError.AUTHENTICATE_FAILURE)
+                        nfcCallback?.onError(NfcError.AUTHENTICATE_FAILURE)
                     }
 
                     is BACDeniedException -> {
-                        nfcCallback.onError(NfcError.AUTHENTICATE_FAILURE)
+                        nfcCallback?.onError(NfcError.AUTHENTICATE_FAILURE)
                     }
 
                     is PACEException -> {
-                        nfcCallback.onError(NfcError.AUTHENTICATE_FAILURE)
+                        nfcCallback?.onError(NfcError.AUTHENTICATE_FAILURE)
                     }
 
                     is CardServiceException -> {
-                        nfcCallback.onError(NfcError.OPEN_FAILURE)
+                        nfcCallback?.onError(NfcError.OPEN_FAILURE)
                     }
                     else -> {
-                        nfcCallback.onError(NfcError.NFC_OPTION_NULL)
+                        nfcCallback?.onError(NfcError.NFC_OPTION_NULL)
                     }
                 }
                 CardEidDTO(null, nfcCallback, e.printStackTrace())

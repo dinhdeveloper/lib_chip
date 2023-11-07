@@ -55,15 +55,9 @@ X
 Tlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/AdditionalPersonDetails.kt,0\b\0bc342729b71e5746c75b0363ffba5f36ad20b05
 v
 Flib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/NfcOption.kt,3\e\3e9b08393a13798e35f0e4f454eba21e6db971ed
-q
-Aapp/src/main/java/unit/chip/libchip/ui/fragment/DetailFragment.kt,7\4\7480669ad14df9ececf512bc9bc6ec9463200c57
 @
 app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 J
 lib_unit_chip/build.gradle,7\5\759655542afd5614c89d664c1f748aef700ae3f3
-v
-Flib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/CardChipNFC.kt,f\8\f8d79cfe494d85b00cac920de8a5ef7f90a66895
 n
 >app/src/main/java/unit/chip/libchip/ui/fragment/MrzFragment.kt,d\0\d0c99e630c557b07597656ec4438b9ee3831040b
-o
-?app/src/main/java/unit/chip/libchip/ui/activity/MainActivity.kt,a\0\a04b1c3bc174b12bccfc312450a8e5ce918efaea

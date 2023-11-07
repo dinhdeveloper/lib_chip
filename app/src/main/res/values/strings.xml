@@ -3,7 +3,7 @@
 
     <string name="note_mrz">Đặt mặt sau CCCD vào chính giữa khung hình và chụp</string>
     <string name="warning_no_nfc">Thiết bị không có NFC</string>
-    <string name="enable_nfc">Bạn cần bật NFC</string>
+    <string name="enable_nfc">Bạn cần bật NFC để thực hiện việc quét CCCD</string>
     <string name="ready_scan">Sẵn sàng quét</string>
     <string name="note_scan">Bạn vui lòng chạm mặt sau CCCD gắn chip vào vùng đọc NFC của thiết bị như hướng dẫn.</string>
 
