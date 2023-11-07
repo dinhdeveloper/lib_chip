@@ -245,8 +245,9 @@ class NfcTagTool private constructor() {
                             personDetails.unkIdNumber = dataGR13.unkIdNumber!!
                             cardEid.additionalPersonDetails = personDetails
                         }
-                    } catch (e: Exception) {} finally {
+                    } catch (e: Exception) {
                         nfcCallback.onError(NfcError.READ_DATA_FAILURE)
+                    } finally {
                         try {
                             passportService?.close()
                         } catch (ex: Exception) {
@@ -274,7 +275,6 @@ class NfcTagTool private constructor() {
                     is CardServiceException -> {
                         nfcCallback.onError(NfcError.OPEN_FAILURE)
                     }
-
                     else -> {
                         nfcCallback.onError(NfcError.NFC_OPTION_NULL)
                     }
