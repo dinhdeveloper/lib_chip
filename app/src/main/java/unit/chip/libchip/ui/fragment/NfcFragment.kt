@@ -1,12 +1,14 @@
 package unit.chip.libchip.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import net.sf.scuba.data.Gender
 import org.jmrtd.lds.icao.MRZInfo
 import unit.chip.lib_unit_chip.common.NfcTagTool
+import unit.chip.lib_unit_chip.common.StringUtils
 import unit.chip.lib_unit_chip.model.CardEiD
 import unit.chip.lib_unit_chip.model.NfcOption
 import unit.chip.libchip.R
@@ -95,6 +97,9 @@ class NfcFragment : BaseFragment<FragmentNfcBinding>() {
     }
 
     private fun goToDetail(cardEiD: CardEiD?) {
+
+        val dsCert = cardEiD?.sodFile?.docSigningCertificate?.let { docSigning -> StringUtils.encodeToBase64String(docSigning) }
+
         val arguments = Bundle()
         arguments.putParcelable("KEY_PASSPORT", cardEiD)
         findNavController().navigate(

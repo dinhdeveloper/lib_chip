@@ -19,8 +19,6 @@ h
 8app/src/main/java/unit/chip/libchip/base/BaseFragment.kt,a\d\ad460ba0c0fe90762934403abbec3cd380206275
 ‚
 Rlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/PersonOptionalDetails.kt,b\d\bdc7417ae4b6fa71272d76b80f1f43154707ecf2
-t
-Dlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/CardEiD.kt,9\f\9f020323c15be5aeca0cb4d99592543d081e4942
 }
 Mlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/CardFileInputStr.kt,0\0\00486f6f3a88ac7bfb45b2657076869ee0b457d8
 z
@@ -35,8 +33,6 @@ Flib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/NfcCallback.kt,f\6\f60
 Olib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/VerificationStatus.kt,d\d\ddb6c7d415d380aedd706aef44b95a1e54f3081d
 {
 Klib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/EACCredentials.kt,6\f\6f837384380410c5882fadbd63ba769496283066
-y
-Ilib_unit_chip/src/main/java/unit/chip/lib_unit_chip/common/StringUtils.kt,9\e\9ef7bfb407d21c746cf4948da397b86e5a04a992
 <
 build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
 ?
@@ -55,9 +51,17 @@ X
 Tlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/AdditionalPersonDetails.kt,0\b\0bc342729b71e5746c75b0363ffba5f36ad20b05
 v
 Flib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/NfcOption.kt,3\e\3e9b08393a13798e35f0e4f454eba21e6db971ed
-@
-app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 J
 lib_unit_chip/build.gradle,7\5\759655542afd5614c89d664c1f748aef700ae3f3
 n
 >app/src/main/java/unit/chip/libchip/ui/fragment/MrzFragment.kt,d\0\d0c99e630c557b07597656ec4438b9ee3831040b
+u
+Elib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/CardEidDTO.kt,3\8\38a138a6101f25649baf525d0785832bbb85f581
+u
+Elib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/NfcError.kt,6\4\6493951425ee194cbbf3dc79847507330a875858
+o
+?app/src/main/java/unit/chip/libchip/ui/activity/MainActivity.kt,a\0\a04b1c3bc174b12bccfc312450a8e5ce918efaea
+q
+Aapp/src/main/java/unit/chip/libchip/ui/fragment/DetailFragment.kt,7\4\7480669ad14df9ececf512bc9bc6ec9463200c57
+p
+@app/src/main/java/unit/chip/libchip/common/BottomSheetScanNFC.kt,4\4\44c5aab5b8881cc3bc1565c4ffc774d4d044688a

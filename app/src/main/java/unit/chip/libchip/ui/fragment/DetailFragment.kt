@@ -37,10 +37,10 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>() {
         }
     }
 
-    private fun renderUI(receivedPassport: CardEiD) {
-        displayAuthenticationStatus(receivedPassport.verificationStatus, receivedPassport.featureStatus!!)
+    private fun renderUI(cardEiD: CardEiD) {
+        displayAuthenticationStatus(cardEiD.verificationStatus, cardEiD.featureStatus!!)
 
-        val personDetails = receivedPassport.personDetails
+        val personDetails = cardEiD.personDetails
         if (personDetails != null) {
             val name = personDetails.primaryIdentifier!!.replace("<", "")
             val surname = personDetails.secondaryIdentifier!!.replace("<", "")
@@ -53,13 +53,13 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>() {
             viewBinding.valueNationality.text = personDetails.nationality
         }
 
-        if (receivedPassport.face != null) {
-            viewBinding.iconPhoto.setImageBitmap(receivedPassport.face)
-        } else if (receivedPassport.portrait != null) {
-            viewBinding.iconPhoto.setImageBitmap(receivedPassport.portrait)
+        if (cardEiD.face != null) {
+            viewBinding.iconPhoto.setImageBitmap(cardEiD.face)
+        } else if (cardEiD.portrait != null) {
+            viewBinding.iconPhoto.setImageBitmap(cardEiD.portrait)
         }
 
-        receivedPassport.additionalPersonDetails?.apply {
+        cardEiD.additionalPersonDetails?.apply {
             viewBinding.id.text = id
             viewBinding.birthDay.text = birthDay
             viewBinding.description.text = description
@@ -78,7 +78,7 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>() {
             viewBinding.valueUnk.text = unkIdNumber
         }
 
-        val sodFile = receivedPassport.sodFile
+        val sodFile = cardEiD.sodFile
         if (sodFile != null) {
             val countrySigningCertificate = sodFile.issuerX500Principal
             val dnRFC2253 = countrySigningCertificate.getName(X500Principal.RFC2253)
