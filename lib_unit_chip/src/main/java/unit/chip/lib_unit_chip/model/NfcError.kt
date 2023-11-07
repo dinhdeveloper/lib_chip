@@ -8,16 +8,14 @@ package unit.chip.lib_unit_chip.model
 
 
 enum class NfcError {
-    NOT_SUPPORT,
-    DISABLE,
-    TAG_INVALID,
-    DOCUMENT_NUMBER_INVALID,
-    DATE_OF_BIRTH_INVALID,
-    DATE_OF_EXPIRY_INVALID,
-    OPEN_FAILURE,
-    AUTHENTICATE_FAILURE,
-    READ_DATA_FAILURE,
-    TIME_OUT_START_READ_NFC,
-    NFC_OPTION_NULL,
-    TIME_OUT_NETWORK
+    NOT_SUPPORT, //Thiết bị không hỗ trợ NFC
+    DISABLE,      //Thiết bị có hỗ trợ NFC nhưng đang tắt
+    TAG_INVALID,     // Thẻ không hợp lệ, không đúng định dạng
+    DOCUMENT_NUMBER_INVALID,     // Số căn cước phải bao gồm 12 chữ số
+    DATE_OF_BIRTH_INVALID,     // Ngày sinh phải gồm 6 chữ số
+    DATE_OF_EXPIRY_INVALID,     // Ngày hết hạn phải gồm 6 chữ số
+    OPEN_FAILURE,     // Không truy cập được vào thẻ chip NFC
+    AUTHENTICATE_FAILURE,     // Không xác thực được thẻ chip (thường do số giấy tờ không đúng với thẻ)
+    READ_DATA_FAILURE,     // Có lỗi trong quá trình đọc dữ liệu trên thẻ
+    NFC_OPTION_NULL     // Lỗi chung
 }

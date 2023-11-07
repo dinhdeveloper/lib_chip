@@ -1,7 +1,9 @@
 package unit.chip.lib_unit_chip.common
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
@@ -54,6 +56,17 @@ class NfcTagTool private constructor() {
     constructor(activity: Activity) : this() {
         this.mActivity = activity
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
+        if (nfcAdapter != null && nfcAdapter?.isEnabled == false) {
+            nfcCallback.onError(NfcError.DISABLE)
+        }
+        if (isNfcSupported() == false){
+            nfcCallback.onError(NfcError.NOT_SUPPORT)
+        }
+    }
+
+    private fun isNfcSupported(): Boolean? {
+        val packageManager = mActivity?.packageManager
+        return packageManager?.hasSystemFeature(PackageManager.FEATURE_NFC)
     }
 
     fun handleNfcEvent(intent: Intent?) {
@@ -152,6 +165,7 @@ class NfcTagTool private constructor() {
                         cardEid.featureStatus = cardEidNFC?.features
                         cardEid.verificationStatus = cardEidNFC?.verificationStatus
                         cardEid.sodFile = cardEidNFC?.sodFile
+                        cardEidNFC?.verifySecurity()
 
                         // Basic Information
                         if (cardEidNFC?.dg1File != null) {
@@ -234,6 +248,7 @@ class NfcTagTool private constructor() {
                             cardEid.additionalPersonDetails = personDetails
                         }
                     } catch (e: Exception) {} finally {
+                        nfcCallback.onError(NfcError.READ_DATA_FAILURE)
                         try {
                             passportService?.close()
                         } catch (ex: Exception) {
