@@ -62,17 +62,14 @@ class MrzFragment : BaseFragment<FragmentMrzBinding>() {
         fotoapparat?.start()
 
         viewBinding.btnClick.setOnClickListener {
-//            val photoResult = fotoapparat?.takePicture()
-//            photoResult
-//                ?.toBitmap()
-//                ?.whenAvailable { bitmapPhoto ->
-//                    fotoapparat?.stop()
-//                    showProgressBar()
-//                    readMrz(bitmapPhoto)
-//                }
-            findNavController().navigate(
-                R.id.action_mrzFragment_to_nfcFragment
-            )
+            val photoResult = fotoapparat?.takePicture()
+            photoResult
+                ?.toBitmap()
+                ?.whenAvailable { bitmapPhoto ->
+                    fotoapparat?.stop()
+                    showProgressBar()
+                    readMrz(bitmapPhoto)
+                }
         }
     }
 

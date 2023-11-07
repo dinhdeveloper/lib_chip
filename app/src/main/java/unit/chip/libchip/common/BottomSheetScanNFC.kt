@@ -29,6 +29,7 @@ class BottomSheetScanNFC(
     private var nfcOption: NfcOption,
     private var nfcTool: NfcTagTool,
     private val listenerSuccessOutput: (CardEiD?) -> Unit,
+    private val listenerErrorOutput: (NfcError?) -> Unit,
     private val listenerCloseOutput: (() -> Unit)
 ) : BottomSheetDialogFragment() {
 
@@ -94,8 +95,46 @@ class BottomSheetScanNFC(
 
             override fun onError(nfcError: NfcError?) {
                 when (nfcError) {
-                    NfcError.OPEN_FAILURE -> {}
-                    NfcError.AUTHENTICATE_FAILURE -> {}
+                    NfcError.NOT_SUPPORT -> {
+                        listenerErrorOutput(NfcError.NOT_SUPPORT)
+                        Log.e("AAAAAAAAAAAA","NOT_SUPPORT")
+                    }
+                    NfcError.DISABLE -> {
+                        listenerErrorOutput(NfcError.DISABLE)
+                        Log.e("AAAAAAAAAAAA","DISABLE")
+                    }
+                    NfcError.TAG_INVALID -> {
+                        listenerErrorOutput(NfcError.TAG_INVALID)
+                        Log.e("AAAAAAAAAAAA","TAG_INVALID")
+                    }
+                    NfcError.DOCUMENT_NUMBER_INVALID -> {
+                        listenerErrorOutput(NfcError.DOCUMENT_NUMBER_INVALID)
+                        Log.e("AAAAAAAAAAAA","DOCUMENT_NUMBER_INVALID")
+                    }
+                    NfcError.DATE_OF_BIRTH_INVALID -> {
+                        listenerErrorOutput(NfcError.DATE_OF_BIRTH_INVALID)
+                        Log.e("AAAAAAAAAAAA","DATE_OF_BIRTH_INVALID")
+                    }
+                    NfcError.DATE_OF_EXPIRY_INVALID -> {
+                        listenerErrorOutput(NfcError.DATE_OF_EXPIRY_INVALID)
+                        Log.e("AAAAAAAAAAAA","DATE_OF_EXPIRY_INVALID")
+                    }
+                    NfcError.OPEN_FAILURE -> {
+                        listenerErrorOutput(NfcError.OPEN_FAILURE)
+                        Log.e("AAAAAAAAAAAA","OPEN_FAILURE")
+                    }
+                    NfcError.AUTHENTICATE_FAILURE -> {
+                        listenerErrorOutput(NfcError.AUTHENTICATE_FAILURE)
+                        Log.e("AAAAAAAAAAAA","AUTHENTICATE_FAILURE")
+                    }
+                    NfcError.READ_DATA_FAILURE -> {
+                        listenerErrorOutput(NfcError.READ_DATA_FAILURE)
+                        Log.e("AAAAAAAAAAAA","READ_DATA_FAILURE")
+                    }
+                    NfcError.NFC_OPTION_NULL -> {
+                        listenerErrorOutput(NfcError.NFC_OPTION_NULL)
+                        Log.e("AAAAAAAAAAAA","NFC_OPTION_NULL")
+                    }
                     else -> {}
                 }
             }

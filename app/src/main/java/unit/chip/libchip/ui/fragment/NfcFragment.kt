@@ -76,6 +76,8 @@ class NfcFragment : BaseFragment<FragmentNfcBinding>() {
                 val bottomSheetScanNfc = context?.let { context ->
                     BottomSheetScanNFC(nfcOption, (activity as MainActivity).nfcTool!!, {
                         goToDetail(it)
+                    },{
+
                     }, {
                         //findNavController().popBackStack()
                     })

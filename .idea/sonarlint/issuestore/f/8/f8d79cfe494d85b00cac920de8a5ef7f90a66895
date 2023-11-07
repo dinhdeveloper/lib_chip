@@ -1,0 +1,36 @@
+
+Ukotlin:S1172³"0Remove this unused function parameter "mrzInfo".(œ›•éùÿÿÿÿ8­™ð¼º1
+jkotlin:S1134®"LTake the required action to fix the issue indicated by this "FIXME" comment.(¾·ƒÚþÿÿÿÿ
+9kotlin:S6615’" Remove this useless initializer.( ¦úŸ
+Ekotlin:S6615" Remove this useless initializer.(„Ú§½ùÿÿÿÿ8Ã™ð¼º1
+>kotlin:S6615±" Remove this useless initializer.(ýœïøÿÿÿÿ
+Kkotlin:S6615£"&The value assigned here is never used.(¾Ê„Ëýÿÿÿÿ8Ã™ð¼º1
+?kotlin:S6615þ"&The value assigned here is never used.(†âÓþ
+Dkotlin:S6615"&The value assigned here is never used.(ÀŸ²üÿÿÿÿ
+>kotlin:S6615œ"&The value assigned here is never used.(¨À£2
+Dkotlin:S6615«"&The value assigned here is never used.(š”ôñøÿÿÿÿ
+Dkotlin:S6615º"&The value assigned here is never used.(¸å£¤ùÿÿÿÿ
+Dkotlin:S6615É"&The value assigned here is never used.(ÍêÎ™ùÿÿÿÿ
+Dkotlin:S6615Ø"&The value assigned here is never used.(ÉÂ¥ªüÿÿÿÿ
+?kotlin:S6615ç"&The value assigned here is never used.(¦÷Õ£
+Dkotlin:S6615ö"&The value assigned here is never used.(óêÔÑÿÿÿÿÿ
+>kotlin:S6615…"&The value assigned here is never used.(·ÝŸ-
+?kotlin:S6615”"&The value assigned here is never used.(ˆÂ„¯
+?kotlin:S6615£"&The value assigned here is never used.(à°’®
+9kotlin:S6615Ÿ	" Remove this useless initializer.(ì¥Ýï
+9kotlin:S6615ö" Remove this useless initializer.(èÛíŽ
+Ekotlin:S6615‚	" Remove this useless initializer.(€ÏÄœùÿÿÿÿ8Ã™ð¼º1
+@kotlin:S6615¶	" Remove this useless initializer.(ì¥Ýï8Ã™ð¼º1
+ukotlin:S6532Œ"PReplace this if expression with requireNotNull(ps) { "Service cannot be null" }.(ôôãïýÿÿÿÿ8Æ™ð¼º1
+pkotlin:S100²	"XRename function "findSaltRSA_PSS" to match the regular expression ^[a-zA-Z][a-zA-Z0-9]*$(ˆ‡Èô
+Ckotlin:S125¶"Remove this commented out code.(–É’Üÿÿÿÿÿ8Ñ™ð¼º1
+Ckotlin:S125œ"Remove this commented out code.(žÀ­êÿÿÿÿÿ8Ò™ð¼º1
+<kotlin:S125é"Remove this commented out code.(—íáÜýÿÿÿÿ
+hkotlin:S1192ˆ"HDefine a constant instead of duplicating this literal "SHA-256" 5 times.(¶Êó€8Õ™ð¼º1
+jkotlin:S1192•	"LDefine a constant instead of duplicating this literal "withRSA/PSS" 3 times.(Î®Æêþÿÿÿÿ
+Akotlin:S1874ü"#Deprecated code should not be used.(ÑÚ¼Ùøÿÿÿÿ
+pkotlin:S3776ð"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(Ÿˆòüÿÿÿÿ
+kkotlin:S3776ª"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(Ãîž 
+pkotlin:S117œ"SRename this local variable to match the regular expression ^`?[_a-z][a-zA-Z0-9]*`?$(È¤Éüÿÿÿÿ
+akotlin:S6510Ê"CMove "return" statements from all branches before "when" statement.(¸âñ³úÿÿÿÿ
+<kotlin:S5542ƒ"Use a secure padding scheme.(²Ö€8‚šð¼º1

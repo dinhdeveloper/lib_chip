@@ -27,8 +27,6 @@ z
 Jlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/FeatureStatus.kt,0\9\0940c3af45c88bb8f9163553738ed79d8c3a7edd
 z
 Jlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/PersonDetails.kt,a\4\a4c04d4118a1a3184138d15fa03f790ac27f51db
-u
-Elib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/CardEidDTO.kt,3\8\38a138a6101f25649baf525d0785832bbb85f581
 w
 Glib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/CardNfcUtils.kt,d\3\d371c62df2002a604b42d7177f2651439051299e
 v
@@ -53,8 +51,6 @@ A
 gradle.properties,2\a\2afbb999f001938c88fa43fc2ef52abf0f8213e4
 X
 (gradle/wrapper/gradle-wrapper.properties,f\b\fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
-n
->app/src/main/java/unit/chip/libchip/ui/fragment/MrzFragment.kt,d\0\d0c99e630c557b07597656ec4438b9ee3831040b
 „
 Tlib_unit_chip/src/main/java/unit/chip/lib_unit_chip/model/AdditionalPersonDetails.kt,0\b\0bc342729b71e5746c75b0363ffba5f36ad20b05
 v
@@ -65,3 +61,5 @@ Aapp/src/main/java/unit/chip/libchip/ui/fragment/DetailFragment.kt,7\4\7480669a
 app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 J
 lib_unit_chip/build.gradle,7\5\759655542afd5614c89d664c1f748aef700ae3f3
+v
+Flib_unit_chip/src/main/java/unit/chip/lib_unit_chip/nfc/CardChipNFC.kt,f\8\f8d79cfe494d85b00cac920de8a5ef7f90a66895

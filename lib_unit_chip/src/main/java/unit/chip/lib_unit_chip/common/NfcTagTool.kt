@@ -1,14 +1,12 @@
 package unit.chip.lib_unit_chip.common
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.sf.scuba.data.Gender
@@ -255,7 +253,7 @@ class NfcTagTool private constructor() {
                             ex.printStackTrace()
                         }
                     }
-                    CardEidDTO(cardEid, nfcCallback)
+                    CardEidDTO(cardEid, nfcCallback,null)
                 }
                 nfcCallback.onSuccess(cardEidDTO.cardEiD)
                 cardEidDTO
@@ -281,7 +279,7 @@ class NfcTagTool private constructor() {
                         nfcCallback.onError(NfcError.NFC_OPTION_NULL)
                     }
                 }
-                CardEidDTO(null, nfcCallback)
+                CardEidDTO(null, nfcCallback, e.printStackTrace())
             }
         }
     }
