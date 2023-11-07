@@ -9,4 +9,4 @@ import unit.chip.lib_unit_chip.model.CardEiD
  */
 
 
-data class CardEidDTO(val cardEiD: CardEiD? = null, val cardServiceException: Exception? = null)
+data class CardEidDTO(val cardEiD: CardEiD? = null, val cardServiceException: NfcCallback? = null)

@@ -1,0 +1,12 @@
+
+Xkotlin:S1481e"9Remove this unused "heigthWithoutPadding" local variable.(«Õ«£8óë£¹1
+Wkotlin:S1481d"8Remove this unused "widthWithoutPadding" local variable.(Å‡µ«8óë£¹1
+Bkotlin:S125g"Remove this commented out code.(ûÍµûÿÿÿÿ8‡óë£¹1
+Ckotlin:S1874‰"#Deprecated code should not be used.(Û’€ 8Šóë£¹1
+Ckotlin:S1874’"#Deprecated code should not be used.(Î¸‚ç8Šóë£¹1
+Hkotlin:S1874–"#Deprecated code should not be used.(÷¢Ş‰øÿÿÿÿ8Šóë£¹1
+Hkotlin:S1874œ"#Deprecated code should not be used.(°ÏÓ¸ıÿÿÿÿ8Šóë£¹1
+Ckotlin:S1874 "#Deprecated code should not be used.(ÄÔóñ8Šóë£¹1
+pkotlin:S3776-"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(·²ê8Œóë£¹1
+\kotlin:S1144n"8Remove this unused private "calculateDotsNumber" method.(š™Üºúÿÿÿÿ8óë£¹1
+kkotlin:S6516%"LReplace explicit functional interface implementation with lambda expression.(£„°8óë£¹1

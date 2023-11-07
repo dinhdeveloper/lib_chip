@@ -1,0 +1,23 @@
+package unit.chip.lib_unit_chip.model
+
+
+/**
+ * Created by DinhTC on 11/7/2023.
+ * Skype: 0975469232
+ */
+
+
+enum class NfcError {
+    NOT_SUPPORT,
+    DISABLE,
+    TAG_INVALID,
+    DOCUMENT_NUMBER_INVALID,
+    DATE_OF_BIRTH_INVALID,
+    DATE_OF_EXPIRY_INVALID,
+    OPEN_FAILURE,
+    AUTHENTICATE_FAILURE,
+    READ_DATA_FAILURE,
+    TIME_OUT_START_READ_NFC,
+    NFC_OPTION_NULL,
+    TIME_OUT_NETWORK
+}

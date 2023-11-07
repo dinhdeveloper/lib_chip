@@ -1,3 +1,43 @@
 <resources>
     <string name="app_name">LibChip</string>
+
+    <string name="note_mrz">Đặt mặt sau CCCD vào chính giữa khung hình và chụp</string>
+    <string name="warning_no_nfc">Thiết bị không có NFC</string>
+    <string name="enable_nfc">Bạn cần bật NFC</string>
+    <string name="ready_scan">Sẵn sàng quét</string>
+    <string name="note_scan">Bạn vui lòng chạm mặt sau CCCD gắn chip vào vùng đọc NFC của thiết bị như hướng dẫn.</string>
+
+
+    <string name="doc_number">9 số cuối CCCD: %1s</string>
+    <string name="doc_dob">Ngày sinh: %1s</string>
+    <string name="doc_expiry">Hết hạn: %1s</string>
+    <string name="name">%1s %2s</string>
+    <string name="prompt_document_number">9 số cuối CCCD</string>
+    <string name="prompt_document_expiration">Hết hạn (yymmdd)</string>
+    <string name="prompt_document_date_of_birth">Ngày sinh (yymmdd)</string>
+    <string name="read_nfc">Đọc NFC</string>
+    <string name="selection_title">Nhập số liệu</string>
+    <string name="selection_manual">Thủ công</string>
+    <string name="selection_automatic">Tự động</string>
+    <string name="no_data_mrz">MRZ không có dữ liệu</string>
+    <string name="nfc_title">Đặt thiết bị lên thẻ CCCD và không di chuyển</string>
+
+
+    <string name="label_document_signing_certificate">Document Signing Certificate</string>
+    <string name="label_country_signing_certificate">Country Signing Certificate</string>
+    <string name="label_certificate_serial_number">Serial number</string>
+    <string name="label_certificate_public_key_algorithm">Public key algorithm</string>
+    <string name="label_certificate_signature_algorithm">Signature algorithm</string>
+    <string name="label_certificate_thumbprint">Certificate thumbprint</string>
+    <string name="label_certificate_issuer">Issuer</string>
+    <string name="label_certificate_subject">Subject</string>
+    <string name="label_certificate_valid_from">Valid from</string>
+    <string name="label_certificate_valid_to">Valid to</string>
+    <string name="label_not_available">NA</string>
+
+    <string name="label_document_number">Document Number Code</string>
+    <string name="label_document_expiry">Expiration Date Code</string>
+    <string name="label_document_issued">Issuing Date Code</string>
+    <string name="label_document_issuing_state">Issuing State Code</string>
+    <string name="label_document_nationality">Nationality Code</string>
 </resources>

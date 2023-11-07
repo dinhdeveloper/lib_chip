@@ -1,9 +1,0 @@
-
-Jkotlin:S1172•"1Remove this unused function parameter "mimeType".(‘Öê»
-wkotlin:S6532½"^Replace this if expression with requireNotNull(caReference) { "CA reference cannot be null" }.(²™–Ž
-2kotlin:S1128"Remove this unused import.(üƒŠ¸
-tkotlin:S1192L"\Define a constant instead of duplicating this literal "Unable to decodeImage Image" 3 times.(óÜöš
-pkotlin:S3776¹"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(à¥†£ýÿÿÿÿ
-Ukotlin:S6529D"1Replace collection size check with "isNotEmpty()"(œÜÜóýÿÿÿÿ8ö¹«¡¹1
-Pkotlin:S6529R"1Replace collection size check with "isNotEmpty()"(‰ÝŒÃ8ö¹«¡¹1
-Ukotlin:S6529`"1Replace collection size check with "isNotEmpty()"(”šï—üÿÿÿÿ8ö¹«¡¹1

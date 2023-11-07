@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_grah"
+    app:startDestination="@id/mrzFragment">
+
+    <fragment
+        android:id="@+id/mrzFragment"
+        android:name="unit.chip.libchip.ui.fragment.MrzFragment"
+        android:label="MrzFragment"
+        tools:layout="@layout/fragment_mrz">
+        <action
+            android:id="@+id/action_mrzFragment_to_nfcFragment"
+            app:destination="@id/nfcFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/nfcFragment"
+        android:name="unit.chip.libchip.ui.fragment.NfcFragment"
+        android:label="NfcFragment"
+        tools:layout="@layout/fragment_nfc">
+        <action
+            android:id="@+id/action_nfcFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="unit.chip.libchip.ui.fragment.DetailFragment"
+        android:label="DetailFragment" />
+</navigation>
