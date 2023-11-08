@@ -1,6 +1,14 @@
 package unit.chip.lib_unit_chip.nfc
 
 import android.util.Log
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.sf.scuba.smartcards.CardFileInputStream
 import net.sf.scuba.smartcards.CardServiceException
 import org.bouncycastle.asn1.ASN1Encodable
@@ -33,9 +41,7 @@ import org.jmrtd.lds.icao.MRZInfo
 import org.jmrtd.protocol.BACResult
 import org.jmrtd.protocol.EACCAResult
 import org.jmrtd.protocol.PACEResult
-import unit.chip.lib_unit_chip.common.StringUtils
-import unit.chip.lib_unit_chip.model.AdditionalPersonDetails
-import unit.chip.lib_unit_chip.model.CardFileInputStr
+import unit.chip.lib_unit_chip.model.DGr13File
 import unit.chip.lib_unit_chip.model.FeatureStatus
 import unit.chip.lib_unit_chip.model.VerificationStatus
 import unit.chip.lib_unit_chip.security.JMRTDSecurityProvider
@@ -118,8 +124,9 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         private set
     var cvcaFile: CVCAFile? = null
         private set
-
-    var cardFileInputStr: CardFileInputStr? = null
+    var dGr13File: DGr13File? = null
+    private var withRSAPSS = "withRSA/PSS"
+    private var sha256 = "SHA-256"
 
     init {
 
@@ -133,17 +140,14 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         /* NOTE: These will be updated in doAA after caller has read ActiveAuthenticationSecurityInfo. */
         ecdsaAASignature = Signature.getInstance("SHA256withECDSA", BC_PROVIDER)
         ecdsaAADigest =
-            MessageDigest.getInstance("SHA-256") /* NOTE: for output length measurement only. -- MO */
+            MessageDigest.getInstance(sha256) /* NOTE: for output length measurement only. -- MO */
     }
 
     constructor(ps: PassportService?, mrzInfo: MRZInfo, maxBlockSize: Int) : this() {
-        if (ps == null) {
-            throw IllegalArgumentException("Service cannot be null")
-        }
+        requireNotNull(ps) { "Service cannot be null" }
         this.service = ps
-        var hasSAC: Boolean = false
+        val hasSAC: Boolean
         var isSACSucceeded = false
-        var paceResult: PACEResult? = null
         if (!ps.isOpen) {
             ps.open()
         }
@@ -170,21 +174,18 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
 
             hasSAC = features.hasSAC() == FeatureStatus.Verdict.PRESENT
             if (hasSAC) {
-                try {
-                    paceResult = doPACE(ps, mrzInfo, maxBlockSize)
-                    isSACSucceeded = paceResult != null
+                isSACSucceeded = try {
+                    doPACE(ps, mrzInfo, maxBlockSize)
+                    true
                 } catch (e: Exception) {
                     Log.i(TAG, "${e.printStackTrace()}")
-                    isSACSucceeded = false
+                    false
                 }
             }
             (service as PassportService).sendSelectApplet(isSACSucceeded)
-//            val data = IOUtils.toByteArray(service?.getInputStream(PassportService.EF_DG13, maxBlockSize))
-//            dataAdditionalPersonDetails = ConvertByteArrayToData(data).convert()
-
-            val inputStream2: CardFileInputStream? = service?.getInputStream(PassportService.EF_DG13, maxBlockSize)
-            cardFileInputStr = inputStream2?.let {
-                CardFileInputStr(it)
+            val cardFileInputStream: CardFileInputStream? = service?.getInputStream(PassportService.EF_DG13, maxBlockSize)
+            dGr13File = cardFileInputStream?.let {
+                DGr13File(it)
             }
 
             /* Find out whether this MRTD supports BAC. */
@@ -282,10 +283,10 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
                     if (hashResult != null) {
                         continue
                     }
-                    if (dgNumbersAlreadyRead.contains(dgNumber)) {
-                        hashResult = verifyHash(dgNumber)
+                    hashResult = if (dgNumbersAlreadyRead.contains(dgNumber)) {
+                        verifyHash(dgNumber)
                     } else {
-                        hashResult = VerificationStatus.HashMatchResult(storedHash!!, null)
+                        VerificationStatus.HashMatchResult(storedHash!!, null)
                     }
                     hashResults[dgNumber] = hashResult!!
                 }
@@ -295,7 +296,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             /* Check EAC support by DG14 presence. */
             if (dgNumbers.contains(14)) {
                 features.setEAC(FeatureStatus.Verdict.PRESENT)
-                if(isChipAuthenticationInfoAvailable(ps, mrzInfo, dg14File, sodFile)) {
+                if(isChipAuthenticationInfoAvailable(dg14File, sodFile)) {
                     features.setCA(FeatureStatus.Verdict.PRESENT)
                 }else{
                     features.setCA(FeatureStatus.Verdict.NOT_PRESENT)
@@ -308,7 +309,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             val hasCA = features.hasCA() == FeatureStatus.Verdict.PRESENT
             if (hasCA) {
                 try {
-                    val eaccaResults = doEACCA(ps, mrzInfo, dg14File, sodFile)
+                    val eaccaResults = doEACCA(ps, dg14File, sodFile)
                     verificationStatus.setChipAuth(VerificationStatus.Verdict.SUCCEEDED,  eaccaResults[0])
                 } catch (e: Exception) {
                     verificationStatus.setChipAuth(VerificationStatus.Verdict.FAILED, null)
@@ -381,48 +382,12 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             throw cse
         }
     }
-
-    fun bytesToHex(bytes: ByteArray): String {
-        val hexChars = CharArray(bytes.size * 2)
-        for (i in bytes.indices) {
-            val v = bytes[i].toInt() and 0xFF
-            hexChars[i * 2] = "0123456789ABCDEF"[v ushr 4]
-            hexChars[i * 2 + 1] = "0123456789ABCDEF"[v and 0x0F]
-        }
-        return String(hexChars)
-    }
-
-    fun hexStringToUTF8(hex: String): String {
-        val bytes = ByteArray(hex.length / 2)
-        var i = 0
-        while (i < hex.length) {
-            val byte = hex.substring(i, i + 2).toInt(16).toByte()
-            bytes[i / 2] = byte
-            i += 2
-        }
-        return String(bytes, Charsets.UTF_8)
-    }
-
-    fun byteArrayToString(bytes: ByteArray): String {
-        val utf8String = String(bytes, Charsets.UTF_8)
-        val allowedCharacters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMăâđêôơưàảãạáằẳẵặắầẩẫậấèẻẽẹéềểễệếìỉĩịíòỏõọóồổỗộốờởỡợớùủũụúừửữựứỳỷỹỵý'\\/,.\":;() "
-        val regexPattern = Regex("[^$allowedCharacters]")
-        val sanitizedString = utf8String.replace(regexPattern, "")
-        return sanitizedString
-    }
-
-
-
-
     ///////////////////////////////////////////////////////////////////////////
     // FUN
     ///////////////////////////////////////////////////////////////////////////
 
     private fun verifyHash(dgNumber: Int): VerificationStatus.HashMatchResult? {
-        var hashResults: MutableMap<Int, VerificationStatus.HashMatchResult>? = verificationStatus.hashResults
-        if (hashResults == null) {
-            hashResults = TreeMap<Int, VerificationStatus.HashMatchResult>()
-        }
+        val hashResults = verificationStatus.hashResults ?: mutableMapOf()
         return verifyHash(dgNumber, hashResults)
     }
 
@@ -430,7 +395,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
 
         val fid = LDSFileUtil.lookupFIDByTag(LDSFileUtil.lookupTagByDataGroupNumber(dgNumber))
         /* Get the stored hash for the DG. */
-        var storedHash: ByteArray? = null
+        val storedHash: ByteArray?
         try {
             val storedHashes = sodFile!!.dataGroupHashes
             storedHash = storedHashes[dgNumber]
@@ -488,7 +453,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
 
         /* Compute the hash and compare. */
         try {
-            val computedHash = digest!!.digest(dgBytes)
+            val computedHash = dgBytes?.let { digest!!.digest(it) }
             val hashResult = VerificationStatus.HashMatchResult(storedHash!!, computedHash)
             hashResults[dgNumber] = hashResult
 
@@ -537,15 +502,9 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
                         e.printStackTrace()
                     }
                 }
-                // val paceInfo = paceInfos.iterator().next()
-                //paceResult = ps.doPACE(paceKeySpec, paceInfo.objectIdentifier, PACEInfo.toParameterSpec(paceInfo.parameterId), paceInfo.parameterId)
-                //paceResult = ps.doPACE(paceKeySpec, paceInfo.objectIdentifier, PACEInfo.toParameterSpec(paceInfo.parameterId))
             }
         } finally {
-            if (isCardAccessFile != null) {
-                isCardAccessFile.close()
-                isCardAccessFile = null
-            }
+            isCardAccessFile?.close()
         }
         if (paceResult == null) {
             throw java.lang.Exception("PACE authentication failed")
@@ -560,7 +519,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     }
 
 
-    private fun doEACCA(ps: PassportService, mrzInfo: MRZInfo, dg14File: DG14File?, sodFile: SODFile?): List<EACCAResult> {
+    private fun doEACCA(ps: PassportService, dg14File: DG14File?, sodFile: SODFile?): List<EACCAResult> {
         if (dg14File == null) {
             throw NullPointerException("dg14File is null")
         }
@@ -604,7 +563,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         return eaccaResults
     }
 
-    fun isChipAuthenticationInfoAvailable(ps: PassportService, mrzInfo: MRZInfo, dg14File: DG14File?, sodFile: SODFile?):Boolean{
+    private fun isChipAuthenticationInfoAvailable(dg14File: DG14File?, sodFile: SODFile?):Boolean{
         if (dg14File == null) {
             throw NullPointerException("dg14File is null")
         }
@@ -633,10 +592,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isComFile = ps.getInputStream(PassportService.EF_COM, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_COM, isComFile) as COMFile
         } finally {
-            if (isComFile != null) {
-                isComFile.close()
-                isComFile = null
-            }
+            isComFile?.close()
         }
     }
 
@@ -648,10 +604,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isSodFile = ps.getInputStream(PassportService.EF_SOD, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_SOD, isSodFile) as SODFile
         } finally {
-            if (isSodFile != null) {
-                isSodFile.close()
-                isSodFile = null
-            }
+            isSodFile?.close()
         }
     }
 
@@ -663,10 +616,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG1 = ps.getInputStream(PassportService.EF_DG1, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG1, isDG1) as DG1File
         } finally {
-            if (isDG1 != null) {
-                isDG1.close()
-                isDG1 = null
-            }
+            isDG1?.close()
         }
     }
 
@@ -678,10 +628,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG2 = ps.getInputStream(PassportService.EF_DG2, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG2, isDG2) as DG2File
         } finally {
-            if (isDG2 != null) {
-                isDG2.close()
-                isDG2 = null
-            }
+            isDG2?.close()
         }
     }
 
@@ -693,10 +640,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG3 = ps.getInputStream(PassportService.EF_DG3, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG3, isDG3) as DG3File
         } finally {
-            if (isDG3 != null) {
-                isDG3.close()
-                isDG3 = null
-            }
+            isDG3?.close()
         }
     }
 
@@ -708,10 +652,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG5 = ps.getInputStream(PassportService.EF_DG5, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG5, isDG5) as DG5File
         } finally {
-            if (isDG5 != null) {
-                isDG5.close()
-                isDG5 = null
-            }
+            isDG5?.close()
         }
     }
 
@@ -723,10 +664,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG7 = ps.getInputStream(PassportService.EF_DG7, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG7, isDG7) as DG7File
         } finally {
-            if (isDG7 != null) {
-                isDG7.close()
-                isDG7 = null
-            }
+            isDG7?.close()
         }
     }
 
@@ -738,10 +676,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG11 = ps.getInputStream(PassportService.EF_DG11, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG11, isDG11) as DG11File
         } finally {
-            if (isDG11 != null) {
-                isDG11.close()
-                isDG11 = null
-            }
+            isDG11?.close()
         }
     }
 
@@ -753,10 +688,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG12 = ps.getInputStream(PassportService.EF_DG12, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG12, isDG12) as DG12File
         } finally {
-            if (isDG12 != null) {
-                isDG12.close()
-                isDG12 = null
-            }
+            isDG12?.close()
         }
     }
 
@@ -768,10 +700,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG14 = ps.getInputStream(PassportService.EF_DG14, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG14, isDG14) as DG14File
         } finally {
-            if (isDG14 != null) {
-                isDG14.close()
-                isDG14 = null
-            }
+            isDG14?.close()
         }
     }
 
@@ -783,10 +712,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isDG15 = ps.getInputStream(PassportService.EF_DG15, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_DG15, isDG15) as DG15File
         } finally {
-            if (isDG15 != null) {
-                isDG15.close()
-                isDG15 = null
-            }
+            isDG15?.close()
         }
     }
 
@@ -798,10 +724,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             isEF_CVCA = ps.getInputStream(PassportService.EF_CVCA, maxBlockSize)
             return LDSFileUtil.getLDSFile(PassportService.EF_CVCA, isEF_CVCA) as CVCAFile
         } finally {
-            if (isEF_CVCA != null) {
-                isEF_CVCA.close()
-                isEF_CVCA = null
-            }
+            isEF_CVCA?.close()
         }
     }
 
@@ -839,36 +762,36 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     }
 
     private fun getDG(dg: Int): AbstractTaggedLDSFile? {
-        when (dg) {
+        return when (dg) {
             1 -> {
-                return dg1File
+                dg1File
             }
             2 -> {
-                return dg2File
+                dg2File
             }
             3 -> {
-                return dg3File
+                dg3File
             }
             5 -> {
-                return dg5File
+                dg5File
             }
             7 -> {
-                return dg7File
+                dg7File
             }
             11 -> {
-                return dg11File
+                dg11File
             }
             12 -> {
-                return dg12File
+                dg12File
             }
             14 -> {
-                return dg14File
+                dg14File
             }
             15 -> {
-                return dg15File
+                dg15File
             }
             else -> {
-                return null
+                null
             }
         }
 
@@ -877,20 +800,25 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     ///////////////////////////////////////////////////////////////////////////
     // verifySecurity()
     ///////////////////////////////////////////////////////////////////////////
-
-    fun verifySecurity(): VerificationStatus {
-        /* Kiểm tra Country Signed của SOD File. Quy trình này để xác nhận CHIP có chữ ký số và theo chuẩn ICAO 9303 */
-        verifyCountrySigning()
-        /* Kiểm tra Document Signed của SOD File */
-        verifyDocumentSigning()
-        /* Kiểm tra Passive Authentication của thẻ CHIP */
-        verifyPassiveAuthentication()
-        /* Kiểm tra Active Authentication của thẻ CHIP. Theo như tư liệu của ICAO 9303, đây là bước quan trọng để xác nhận thẻ CHIP không phải là copy */
-        if (service != null && dg15File != null) {
-            verifyActiveAuth()
+    suspend fun verifySecurity(): VerificationStatus {
+        return coroutineScope {
+            withContext(Dispatchers.Default) {
+                verifyCountrySigning()
+            }
+            withContext(Dispatchers.Default) {
+                verifyDocumentSigning()
+            }
+            withContext(Dispatchers.Default) {
+                verifyPassiveAuthentication()
+            }
+            withContext(Dispatchers.Default) {
+                if (service != null && dg15File != null) {
+                    verifyActiveAuth()
+                }
+            }
+            // Kết quả tổng hợp từ các tác vụ
+            return@coroutineScope verificationStatus
         }
-
-        return verificationStatus
     }
 
     private fun verifyDocumentSigning() {
@@ -943,8 +871,8 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             verify whether the chip card is genuine. */
             if (docSigningCertificate != null) {
                 chain.add(docSigningCertificate)
-                val certificateString = StringUtils.convertToBase64(docSigningCertificate)
-                Log.i(TAG, "CERTIFICATE:\n$certificateString")
+                //val certificateString = StringUtils.convertToBase64(docSigningCertificate)
+                //Log.i(TAG, "CERTIFICATE:\n$certificateString")
                 verificationStatus.setCountrySigning(VerificationStatus.Verdict.SUCCEEDED, chain)
             } else {
                 Log.w(TAG, "Error getting document signing certificate from EF.SOd")
@@ -994,9 +922,17 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         }
 
         val storedHashes = sodFile!!.dataGroupHashes
+        val deferredList = mutableListOf<Deferred<VerificationStatus.HashMatchResult?>>()
         for (dgNumber in storedHashes.keys) {
-            verifyHash(dgNumber, hashResults)
+            val deferred = GlobalScope.async {
+                verifyHash(dgNumber, hashResults)
+            }
+            deferredList.add(deferred)
         }
+        runBlocking {
+            deferredList.awaitAll()
+        }
+
         if (verificationStatus.passiveAuthentication == VerificationStatus.Verdict.UNKNOWN) {
             verificationStatus.setPassiveAuthentication(VerificationStatus.Verdict.SUCCEEDED, hashResults)
         } else {
@@ -1065,68 +1001,70 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     @Throws(CardServiceException::class)
     private fun verifyActiveAuth(publicKey: PublicKey, digestAlgorithm: String?, signatureAlgorithm: String?, challenge: ByteArray, response: ByteArray): Boolean {
         try {
-            val pubKeyAlgorithm = publicKey.algorithm
-            if ("RSA" == pubKeyAlgorithm) {
-                /* FIXME: check that digestAlgorithm = "SHA1" in this case, check (and re-initialize) rsaAASignature (and rsaAACipher). */
-                Log.w(
-                    TAG, "Unexpected algorithms for RSA AA: "
-                            + "digest algorithm = " + (digestAlgorithm ?: "null")
-                            + ", signature algorithm = " + (signatureAlgorithm ?: "null"))
+            when (publicKey.algorithm) {
+                "RSA" -> {
+                    Log.w(
+                        TAG, "Unexpected algorithms for RSA AA: "
+                                + "digest algorithm = " + (digestAlgorithm ?: "null")
+                                + ", signature algorithm = " + (signatureAlgorithm ?: "null"))
 
-                rsaAADigest = MessageDigest.getInstance(digestAlgorithm) /* NOTE: for output length measurement only. -- MO */
-                rsaAASignature = Signature.getInstance(signatureAlgorithm, BC_PROVIDER)
+                    rsaAADigest =
+                        digestAlgorithm?.let { MessageDigest.getInstance(it) } /* NOTE: for output length measurement only. -- MO */
+                    rsaAASignature = Signature.getInstance(signatureAlgorithm, BC_PROVIDER)
 
-                val rsaPublicKey = publicKey as RSAPublicKey
-                rsaAACipher.init(Cipher.DECRYPT_MODE, rsaPublicKey)
-                rsaAASignature!!.initVerify(rsaPublicKey)
+                    val rsaPublicKey = publicKey as RSAPublicKey
+                    rsaAACipher.init(Cipher.DECRYPT_MODE, rsaPublicKey)
+                    rsaAASignature!!.initVerify(rsaPublicKey)
 
-                val digestLength = rsaAADigest!!.digestLength /* SHA1 should be 20 bytes = 160 bits */
-                if (digestLength != 20) throw AssertionError()
-                val plaintext = rsaAACipher.doFinal(response)
-                val m1 = Util.recoverMessage(digestLength, plaintext)
-                rsaAASignature!!.update(m1)
-                rsaAASignature!!.update(challenge)
-                return rsaAASignature!!.verify(response)
-            } else if ("EC" == pubKeyAlgorithm || "ECDSA" == pubKeyAlgorithm) {
-                val ecdsaPublicKey = publicKey as ECPublicKey
-
-                if (ecdsaAASignature == null || signatureAlgorithm != null && signatureAlgorithm != ecdsaAASignature!!.algorithm) {
-                    Log.w(TAG, "Re-initializing ecdsaAASignature with signature algorithm " + signatureAlgorithm!!)
-                    ecdsaAASignature = Signature.getInstance(signatureAlgorithm)
+                    val digestLength = rsaAADigest!!.digestLength /* SHA1 should be 20 bytes = 160 bits */
+                    if (digestLength != 20) throw AssertionError()
+                    val plaintext = rsaAACipher.doFinal(response)
+                    val m1 = Util.recoverMessage(digestLength, plaintext)
+                    rsaAASignature!!.update(m1)
+                    rsaAASignature!!.update(challenge)
+                    return rsaAASignature!!.verify(response)
                 }
-                if (ecdsaAADigest == null || digestAlgorithm != null && digestAlgorithm != ecdsaAADigest!!.algorithm) {
-                    Log.w(TAG, "Re-initializing ecdsaAADigest with digest algorithm " + digestAlgorithm!!)
-                    ecdsaAADigest = MessageDigest.getInstance(digestAlgorithm)
+                "EC", "ECDSA" -> {
+                    val ecdsaPublicKey = publicKey as ECPublicKey
+
+                    if (ecdsaAASignature == null || signatureAlgorithm != null && signatureAlgorithm != ecdsaAASignature!!.algorithm) {
+                        Log.w(TAG, "Re-initializing ecdsaAASignature with signature algorithm " + signatureAlgorithm!!)
+                        ecdsaAASignature = Signature.getInstance(signatureAlgorithm)
+                    }
+                    if (ecdsaAADigest == null || digestAlgorithm != null && digestAlgorithm != ecdsaAADigest!!.algorithm) {
+                        Log.w(TAG, "Re-initializing ecdsaAADigest with digest algorithm " + digestAlgorithm!!)
+                        ecdsaAADigest = MessageDigest.getInstance(digestAlgorithm)
+                    }
+
+                    ecdsaAASignature!!.initVerify(ecdsaPublicKey)
+
+                    if (response.size % 2 != 0) {
+                        Log.w(TAG, "Active Authentication response is not of even length")
+                    }
+
+                    val l = response.size / 2
+                    val r = Util.os2i(response, 0, l)
+                    val s = Util.os2i(response, l, l)
+
+                    ecdsaAASignature!!.update(challenge)
+
+                    try {
+
+                        val asn1Sequence = DERSequence(arrayOf<ASN1Encodable>(ASN1Integer(r), ASN1Integer(s)))
+                        return ecdsaAASignature!!.verify(asn1Sequence.encoded)
+                    } catch (ioe: IOException) {
+                        Log.e(TAG, "Unexpected exception during AA signature verification with ECDSA")
+                        ioe.printStackTrace()
+                        return false
+                    }
+
                 }
-
-                ecdsaAASignature!!.initVerify(ecdsaPublicKey)
-
-                if (response.size % 2 != 0) {
-                    Log.w(TAG, "Active Authentication response is not of even length")
-                }
-
-                val l = response.size / 2
-                val r = Util.os2i(response, 0, l)
-                val s = Util.os2i(response, l, l)
-
-                ecdsaAASignature!!.update(challenge)
-
-                try {
-
-                    val asn1Sequence = DERSequence(arrayOf<ASN1Encodable>(ASN1Integer(r), ASN1Integer(s)))
-                    return ecdsaAASignature!!.verify(asn1Sequence.encoded)
-                } catch (ioe: IOException) {
-                    Log.e(TAG, "Unexpected exception during AA signature verification with ECDSA")
-                    ioe.printStackTrace()
+                else -> {
+                    Log.e(TAG, "Unsupported AA public key type " + publicKey.javaClass.simpleName)
                     return false
                 }
-
-            } else {
-                Log.e(TAG, "Unsupported AA public key type " + publicKey.javaClass.simpleName)
-                return false
             }
         } catch (iae: IllegalArgumentException) {
-            // iae.printStackTrace();
             throw CardServiceException(iae.toString())
         } catch (iae: GeneralSecurityException) {
             throw CardServiceException(iae.toString())
@@ -1139,7 +1077,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         val eContent = sodFile!!.eContent
         val signature = sodFile!!.encryptedDigest
 
-        var digestEncryptionAlgorithm: String? = null
+        var digestEncryptionAlgorithm: String?
         try {
             digestEncryptionAlgorithm = sodFile!!.digestEncryptionAlgorithm
         } catch (e: Exception) {
@@ -1151,7 +1089,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         */
         if (digestEncryptionAlgorithm == null) {
             val digestAlg = sodFile!!.signerInfoDigestAlgorithm
-            var digest: MessageDigest? = null
+            var digest: MessageDigest?
             try {
                 digest = MessageDigest.getInstance(digestAlg)
             } catch (e: Exception) {
@@ -1170,7 +1108,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         */
         if ("SSAwithRSA/PSS" == digestEncryptionAlgorithm) {
             val digestAlg = sodFile!!.signerInfoDigestAlgorithm
-            digestEncryptionAlgorithm = digestAlg.replace("-", "") + "withRSA/PSS"
+            digestEncryptionAlgorithm = digestAlg.replace("-", "") + withRSAPSS
         }
 
         if ("RSA" == digestEncryptionAlgorithm) {
@@ -1180,35 +1118,26 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
 
         Log.i(TAG, "digestEncryptionAlgorithm = $digestEncryptionAlgorithm")
 
-        var sig: Signature? = null
-
-        sig = Signature.getInstance(digestEncryptionAlgorithm, BC_PROVIDER)
-        if (digestEncryptionAlgorithm.endsWith("withRSA/PSS")) {
-            val saltLength = findSaltRSA_PSS(digestEncryptionAlgorithm, docSigningCert, eContent, signature)//Unknown salt so we try multiples until we get a success or failure
-            val mgf1ParameterSpec = MGF1ParameterSpec("SHA-256")
-            val pssParameterSpec = PSSParameterSpec("SHA-256", "MGF1", mgf1ParameterSpec, saltLength, 1)
+        val sig: Signature? = Signature.getInstance(digestEncryptionAlgorithm, BC_PROVIDER)
+        if (digestEncryptionAlgorithm.endsWith(withRSAPSS)) {
+            val saltLength = findsaltrsaPss(digestEncryptionAlgorithm, docSigningCert, eContent, signature)//Unknown salt so we try multiples until we get a success or failure
+            val mgf1ParameterSpec = MGF1ParameterSpec(sha256)
+            val pssParameterSpec = PSSParameterSpec(sha256, "MGF1", mgf1ParameterSpec, saltLength, 1)
             sig!!.setParameter(pssParameterSpec)
         }
-        /*try {
-        sig = Signature.getInstance(digestEncryptionAlgorithm);
-        } catch (Exception e) {
-        sig = Signature.getInstance(digestEncryptionAlgorithm, BC_PROVIDER);
-        }*/
         sig!!.initVerify(docSigningCert)
         sig.update(eContent)
         return sig.verify(signature)
     }
 
-    private fun findSaltRSA_PSS(digestEncryptionAlgorithm: String, docSigningCert: Certificate?, eContent: ByteArray, signature: ByteArray): Int {
+    private fun findsaltrsaPss(digestEncryptionAlgorithm: String, docSigningCert: Certificate?, eContent: ByteArray, signature: ByteArray): Int {
         //Using brute force
         for (i in 0..512) {
             try {
-                var sig: Signature? = null
-
-                sig = Signature.getInstance(digestEncryptionAlgorithm, BC_PROVIDER)
-                if (digestEncryptionAlgorithm.endsWith("withRSA/PSS")) {
-                    val mgf1ParameterSpec = MGF1ParameterSpec("SHA-256")
-                    val pssParameterSpec = PSSParameterSpec("SHA-256", "MGF1", mgf1ParameterSpec, i, 1)
+                val sig: Signature? = Signature.getInstance(digestEncryptionAlgorithm, BC_PROVIDER)
+                if (digestEncryptionAlgorithm.endsWith(withRSAPSS)) {
+                    val mgf1ParameterSpec = MGF1ParameterSpec(sha256)
+                    val pssParameterSpec = PSSParameterSpec(sha256, "MGF1", mgf1ParameterSpec, i, 1)
                     sig!!.setParameter(pssParameterSpec)
                 }
 
@@ -1232,9 +1161,5 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         private val BC_PROVIDER = JMRTDSecurityProvider.bouncyCastleProvider
         private val EMPTY_TRIED_BAC_ENTRY_LIST = emptyList<BACKey>()
         private val EMPTY_CERTIFICATE_CHAIN = emptyList<Certificate>()
-
-        val MAX_BLOCK_SIZE: Int = PassportService.DEFAULT_MAX_BLOCKSIZE
-        val MAX_TRANSCEIVE_LENGTH_FOR_SECURE_MESSAGING: Int = PassportService.NORMAL_MAX_TRANCEIVE_LENGTH
-        val MAX_TRANSCEIVE_LENGTH_FOR_PACE: Int = PassportService.NORMAL_MAX_TRANCEIVE_LENGTH
     }
 }

@@ -26,7 +26,6 @@ data class AdditionalPersonDetails(
     var expiredDate: String = "",
     var recentLocation: String = "",
     var religion: String = "",
-    var sodBase64: String = "",
     var facePath: String = "",
     var partnerName: String = "",
     var unkIdNumber: String = ""
@@ -67,7 +66,6 @@ data class AdditionalPersonDetails(
         parcel.writeString(expiredDate)
         parcel.writeString(recentLocation)
         parcel.writeString(religion)
-        parcel.writeString(sodBase64)
         parcel.writeString(facePath)
         parcel.writeString(partnerName)
         parcel.writeString(unkIdNumber)

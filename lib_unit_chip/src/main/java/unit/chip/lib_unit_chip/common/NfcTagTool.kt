@@ -2,7 +2,6 @@ package unit.chip.lib_unit_chip.common
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
@@ -212,7 +211,7 @@ class NfcTagTool private constructor() {
                                 e.printStackTrace()
                             }
                         }
-                        val dataGR13 = cardEidNFC?.cardFileInputStr
+                        val dataGR13 = cardEidNFC?.dGr13File
                         if (dataGR13 != null) {
                             val personDetails = AdditionalPersonDetails()
                             personDetails.id = dataGR13.id!!

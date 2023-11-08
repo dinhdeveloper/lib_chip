@@ -62,14 +62,22 @@ class MrzFragment : BaseFragment<FragmentMrzBinding>() {
         fotoapparat?.start()
 
         viewBinding.btnClick.setOnClickListener {
-            val photoResult = fotoapparat?.takePicture()
-            photoResult
-                ?.toBitmap()
-                ?.whenAvailable { bitmapPhoto ->
-                    fotoapparat?.stop()
-                    showProgressBar()
-                    readMrz(bitmapPhoto)
-                }
+//            val photoResult = fotoapparat?.takePicture()
+//            photoResult
+//                ?.toBitmap()
+//                ?.whenAvailable { bitmapPhoto ->
+//                    fotoapparat?.stop()
+//                    showProgressBar()
+//                    readMrz(bitmapPhoto)
+//                }
+
+            var mrzInfo = createDummyMrz("095008604", "950320", "350320")
+            Log.e("AAAAAAAAAAAAA", Gson().toJson(mrzInfo))
+            findNavController().navigate(
+                R.id.action_mrzFragment_to_nfcFragment,
+                bundleOf("KEY_MRZ_INFO" to mrzInfo)
+            )
+            hideProgressBar()
         }
     }
 

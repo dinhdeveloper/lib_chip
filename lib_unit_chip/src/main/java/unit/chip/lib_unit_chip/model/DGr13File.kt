@@ -16,27 +16,27 @@ import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class CardFileInputStr(cardFileInputStream: CardFileInputStream) : DataGroup(109, cardFileInputStream) {
+class DGr13File(cardFileInputStream: CardFileInputStream) : DataGroup(109, cardFileInputStream) {
 
     companion object {
         val f525r = Logger.getLogger("org.jmrtd")
-        val f526s = charArrayOf('0', 17.toChar(), 2.toChar(), 1.toChar(), 1.toChar(), 19.toChar(), '\u000C')
-        val f527t = charArrayOf('0', 28.toChar(), 2.toChar(), 1.toChar(), 2.toChar(), '\u000C', 23.toChar())
-        val f528u = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 3.toChar(), 19.toChar(), '\n')
-        val f529v = charArrayOf('0', '\b', 2.toChar(), 1.toChar(), 4.toChar(), '\u000C', 3.toChar())
-        val f530w = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 5.toChar(), '\u000C', '\n')
-        val f531x = charArrayOf('0', '\t', 2.toChar(), 1.toChar(), 6.toChar(), '\u000C', 4.toChar())
-        val f532y = charArrayOf('0', 11.toChar(), 2.toChar(), 1.toChar(), 7.toChar(), '\u000C', 6.toChar())
-        val f533z = charArrayOf('0', '&', 2.toChar(), 1.toChar(), '\b', '\u000C', '!')
-        val f534A = charArrayOf('0', '=', 2.toChar(), 1.toChar(), '\t', '\u000C', '8')
-        val f535B = charArrayOf('0', '(', 2.toChar(), 1.toChar(), '\n', '\u000C', '#')
-        val f536C = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 11.toChar(), 19.toChar(), '\n')
-        val f537D = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), '\u000c', '\u000C', '\n')
+        val charId = charArrayOf('0', 17.toChar(), 2.toChar(), 1.toChar(), 1.toChar(), 19.toChar(), '\u000C')
+        val charName = charArrayOf('0', 28.toChar(), 2.toChar(), 1.toChar(), 2.toChar(), '\u000C', 23.toChar())
+        val charBirthDay = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 3.toChar(), 19.toChar(), '\n')
+        val charGender = charArrayOf('0', '\b', 2.toChar(), 1.toChar(), 4.toChar(), '\u000C', 3.toChar())
+        val charNationality = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 5.toChar(), '\u000C', '\n')
+        val charNation = charArrayOf('0', '\t', 2.toChar(), 1.toChar(), 6.toChar(), '\u000C', 4.toChar())
+        val charReligion = charArrayOf('0', 11.toChar(), 2.toChar(), 1.toChar(), 7.toChar(), '\u000C', 6.toChar())
+        val charHomeTown = charArrayOf('0', '&', 2.toChar(), 1.toChar(), '\b', '\u000C', '!')
+        val charRecentLocation = charArrayOf('0', '=', 2.toChar(), 1.toChar(), '\t', '\u000C', '8')
+        val charDescription = charArrayOf('0', '(', 2.toChar(), 1.toChar(), '\n', '\u000C', '#')
+        val charIssueDate = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), 11.toChar(), 19.toChar(), '\n')
+        val charExpiredDate = charArrayOf('0', 15.toChar(), 2.toChar(), 1.toChar(), '\u000c', '\u000C', '\n')
         val f538E = charArrayOf('0', '6', 2.toChar(), 1.toChar(), '\r')
-        val f539F = charArrayOf('0', 25.toChar(), '\u000C', 23.toChar())
-        val f540G = charArrayOf('0', 22.toChar(), '\u000C', 20.toChar())
-        val f541H = charArrayOf('0', 14.toChar(), 2.toChar(), 1.toChar(), 15.toChar(), 19.toChar(), '\t')
-        val f542I = charArrayOf('0', 21.toChar(), 2.toChar(), 1.toChar(), 16.toChar(), 19.toChar(), 16.toChar())
+        val charFatherName = charArrayOf('0', 25.toChar(), '\u000C', 23.toChar())
+        val charMotherName = charArrayOf('0', 22.toChar(), '\u000C', 20.toChar())
+        val charOldNumber = charArrayOf('0', 14.toChar(), 2.toChar(), 1.toChar(), 15.toChar(), 19.toChar(), '\t')
+        val charUnkIdNumber = charArrayOf('0', 21.toChar(), 2.toChar(), 1.toChar(), 16.toChar(), 19.toChar(), 16.toChar())
     }
 
     var id: String? = null
@@ -64,7 +64,7 @@ class CardFileInputStr(cardFileInputStream: CardFileInputStream) : DataGroup(109
 
     override fun readContent(inputStream: InputStream) {
         try {
-            var inputStreamToUse: TLVInputStream? =
+            val inputStreamToUse: TLVInputStream =
                 if (inputStream is TLVInputStream) inputStream else TLVInputStream(inputStream)
 
             val cArr = CharArray(2048)
@@ -113,58 +113,58 @@ class CardFileInputStr(cardFileInputStream: CardFileInputStream) : DataGroup(109
                 if (copyOfRange.size >= 5) {
                     when (copyOfRange[4]) {
                         1.toChar() -> id =
-                            String(copyOfRange.copyOfRange(f526s.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charId.size, copyOfRange.size))
 
                         2.toChar() -> name =
-                            String(copyOfRange.copyOfRange(f527t.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charName.size, copyOfRange.size))
 
                         3.toChar() -> birthDay =
-                            String(copyOfRange.copyOfRange(f528u.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charBirthDay.size, copyOfRange.size))
 
                         4.toChar() -> gender =
-                            String(copyOfRange.copyOfRange(f529v.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charGender.size, copyOfRange.size))
 
                         5.toChar() -> nationality =
-                            String(copyOfRange.copyOfRange(f530w.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charNationality.size, copyOfRange.size))
 
                         6.toChar() -> nation =
-                            String(copyOfRange.copyOfRange(f531x.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charNation.size, copyOfRange.size))
 
                         7.toChar() -> religion =
-                            String(copyOfRange.copyOfRange(f532y.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charReligion.size, copyOfRange.size))
 
                         8.toChar() -> homeTown =
-                            String(copyOfRange.copyOfRange(f533z.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charHomeTown.size, copyOfRange.size))
 
                         9.toChar() -> recentLocation =
-                            String(copyOfRange.copyOfRange(f534A.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charRecentLocation.size, copyOfRange.size))
 
                         10.toChar() -> description =
-                            String(copyOfRange.copyOfRange(f535B.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charDescription.size, copyOfRange.size))
 
                         11.toChar() -> issueDate =
-                            String(copyOfRange.copyOfRange(f536C.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charIssueDate.size, copyOfRange.size))
 
                         12.toChar() -> expiredDate =
-                            String(copyOfRange.copyOfRange(f537D.size, copyOfRange.size))
+                            String(copyOfRange.copyOfRange(charExpiredDate.size, copyOfRange.size))
 
                         13.toChar() -> {
-                            val arrayList2 = ArrayList<Int>()
+                            val arrayList = ArrayList<Int>()
                             for (length in f538E.size until copyOfRange.size - 2) {
                                 if (copyOfRange[length] == '0' && copyOfRange[length + 2] == 12.toChar()) {
-                                    arrayList2.add(length)
+                                    arrayList.add(length)
                                 }
                             }
-                            if (arrayList2.size != 2) {
+                            if (arrayList.size != 2) {
                                 Log.e("FAMILY", "Bad format")
                             } else {
-                                fatherName = String(copyOfRange.copyOfRange(arrayList2[0] + f539F.size, arrayList2[1]))
-                                motherName = String(copyOfRange.copyOfRange(arrayList2[1] + f540G.size, copyOfRange.size))
+                                fatherName = String(copyOfRange.copyOfRange(arrayList[0] + charFatherName.size, arrayList[1]))
+                                motherName = String(copyOfRange.copyOfRange(arrayList[1] + charMotherName.size, copyOfRange.size))
                             }
                         }
                         14.toChar() -> { /* handle case 14 */ }
-                        15.toChar() -> oldNumber = String(copyOfRange.copyOfRange(f541H.size, copyOfRange.size))
-                        16.toChar() -> unkIdNumber = String(copyOfRange.copyOfRange(f542I.size, copyOfRange.size))
+                        15.toChar() -> oldNumber = String(copyOfRange.copyOfRange(charOldNumber.size, copyOfRange.size))
+                        16.toChar() -> unkIdNumber = String(copyOfRange.copyOfRange(charUnkIdNumber.size, copyOfRange.size))
                         else -> listData.add(String(copyOfRange))
                     }
                 }

@@ -325,7 +325,7 @@ class VerificationStatus : Parcelable {
         }
 
         override fun toString(): String {
-            return "AAAAAAA_HashResult [" + isMatch + ", stored: " + Hex.bytesToHexString(storedHash) + ", computed: " + Hex.bytesToHexString(
+            return "AAAAAAAAAAA_HashResult [" + isMatch + ", stored: " + Hex.bytesToHexString(storedHash) + ", computed: " + Hex.bytesToHexString(
                 computedHash
             )
         }
