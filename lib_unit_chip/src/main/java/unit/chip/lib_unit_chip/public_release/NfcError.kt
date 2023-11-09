@@ -1,4 +1,4 @@
-package unit.chip.lib_unit_chip.model
+package unit.chip.lib_unit_chip.public_release
 
 
 /**

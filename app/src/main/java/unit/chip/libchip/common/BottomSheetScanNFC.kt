@@ -10,12 +10,11 @@ import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.Gson
-import org.jmrtd.lds.icao.MRZInfo
-import unit.chip.lib_unit_chip.common.NfcTagTool
-import unit.chip.lib_unit_chip.model.CardEiD
-import unit.chip.lib_unit_chip.model.NfcError
-import unit.chip.lib_unit_chip.model.NfcOption
-import unit.chip.lib_unit_chip.nfc.NfcCallback
+import unit.chip.lib_unit_chip.public_release.NfcTagTool
+import unit.chip.lib_unit_chip.public_release.NfcError
+import unit.chip.lib_unit_chip.public_release.NfcOption
+import unit.chip.lib_unit_chip.public_release.ChipResult
+import unit.chip.lib_unit_chip.public_release.NfcCallback
 import unit.chip.libchip.R
 
 
@@ -28,7 +27,7 @@ import unit.chip.libchip.R
 class BottomSheetScanNFC(
     private var nfcOption: NfcOption,
     private var nfcTool: NfcTagTool,
-    private val listenerSuccessOutput: (CardEiD?) -> Unit,
+    private val listenerSuccessOutput: (ChipResult?) -> Unit,
     private val listenerErrorOutput: (NfcError?) -> Unit,
     private val listenerCloseOutput: (() -> Unit)
 ) : BottomSheetDialogFragment() {
@@ -85,7 +84,7 @@ class BottomSheetScanNFC(
         progress.startProgress()
 
         nfcTool.handleNFC(nfcOption, object : NfcCallback() {
-            override fun onSuccess(nfcResult: CardEiD?) {
+            override fun onSuccess(nfcResult: ChipResult?) {
                 progress.stopProgress()
                 progress.visibility = View.GONE
                 listenerSuccessOutput(nfcResult)

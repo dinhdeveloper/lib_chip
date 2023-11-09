@@ -1,21 +1,30 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+#open
+-keep class unit.chip.lib_unit_chip.public_release.ChipResult {
+    *;
+}
+-keep class unit.chip.lib_unit_chip.public_release.NfcCallback {
+    *;
+}
+-keep class unit.chip.lib_unit_chip.public_release.NfcError {
+    *;
+}
+-keep class unit.chip.lib_unit_chip.public_release.NfcOption {
+     *;
+}
+-keep class unit.chip.lib_unit_chip.public_release.NfcTagTool {
+    public *;
+}
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+#close
+-dontwarn unit.chip.lib_unit_chip.model.**
+-dontwarn unit.chip.lib_unit_chip.common.**
+-dontwarn unit.chip.lib_unit_chip.nfc.**
+-dontwarn unit.chip.lib_unit_chip.security.**
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** w(...);
+    public static *** e(...);
+    public static *** i(...);
+}

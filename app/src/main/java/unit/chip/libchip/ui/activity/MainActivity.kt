@@ -10,8 +10,7 @@ import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import unit.chip.lib_unit_chip.common.NfcTagTool
-import unit.chip.lib_unit_chip.model.NfcError
+import unit.chip.lib_unit_chip.public_release.NfcTagTool
 import unit.chip.libchip.R
 import unit.chip.libchip.base.BaseActivity
 import unit.chip.libchip.databinding.ActivityMainBinding

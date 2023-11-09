@@ -41,6 +41,7 @@ import org.jmrtd.lds.icao.MRZInfo
 import org.jmrtd.protocol.BACResult
 import org.jmrtd.protocol.EACCAResult
 import org.jmrtd.protocol.PACEResult
+import unit.chip.lib_unit_chip.common.StringUtils
 import unit.chip.lib_unit_chip.model.DGr13File
 import unit.chip.lib_unit_chip.model.FeatureStatus
 import unit.chip.lib_unit_chip.model.VerificationStatus
@@ -100,8 +101,7 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     @Transient
     private var ecdsaAADigest: MessageDigest? = null
 
-    var comFile: COMFile? = null
-        private set
+    private var comFile: COMFile? = null
     var sodFile: SODFile? = null
         private set
     var dg1File: DG1File? = null
@@ -114,16 +114,11 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
         private set
     var dg7File: DG7File? = null
         private set
-    var dg11File: DG11File? = null
-        private set
-    var dg12File: DG12File? = null
-        private set
-    var dg14File: DG14File? = null
-        private set
-    var dg15File: DG15File? = null
-        private set
-    var cvcaFile: CVCAFile? = null
-        private set
+    private var dg11File: DG11File? = null
+    private var dg12File: DG12File? = null
+    private var dg14File: DG14File? = null
+    private var dg15File: DG15File? = null
+    private var cvcaFile: CVCAFile? = null
     var dGr13File: DGr13File? = null
     private var withRSAPSS = "withRSA/PSS"
     private var sha256 = "SHA-256"
@@ -800,25 +795,19 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
     ///////////////////////////////////////////////////////////////////////////
     // verifySecurity()
     ///////////////////////////////////////////////////////////////////////////
-    suspend fun verifySecurity(): VerificationStatus {
-        return coroutineScope {
-            withContext(Dispatchers.Default) {
-                verifyCountrySigning()
-            }
-            withContext(Dispatchers.Default) {
-                verifyDocumentSigning()
-            }
-            withContext(Dispatchers.Default) {
-                verifyPassiveAuthentication()
-            }
-            withContext(Dispatchers.Default) {
-                if (service != null && dg15File != null) {
-                    verifyActiveAuth()
-                }
-            }
-            // Kết quả tổng hợp từ các tác vụ
-            return@coroutineScope verificationStatus
+    fun verifySecurity(): VerificationStatus {
+        /* Kiểm tra Country Signed của SOD File. Quy trình này để xác nhận CHIP có chữ ký số và theo chuẩn ICAO 9303 */
+        verifyCountrySigning()
+        /* Kiểm tra Document Signed của SOD File */
+        verifyDocumentSigning()
+        /* Kiểm tra Passive Authentication của thẻ CHIP */
+        verifyPassiveAuthentication()
+        /* Kiểm tra Active Authentication của thẻ CHIP. Theo như tư liệu của ICAO 9303, đây là bước quan trọng để xác nhận thẻ CHIP không phải là copy */
+        if (service != null && dg15File != null) {
+            verifyActiveAuth()
         }
+
+        return verificationStatus
     }
 
     private fun verifyDocumentSigning() {
@@ -871,8 +860,8 @@ class CardChipNFC @Throws(GeneralSecurityException::class) private constructor()
             verify whether the chip card is genuine. */
             if (docSigningCertificate != null) {
                 chain.add(docSigningCertificate)
-                //val certificateString = StringUtils.convertToBase64(docSigningCertificate)
-                //Log.i(TAG, "CERTIFICATE:\n$certificateString")
+                val certificateString = StringUtils.convertToBase64(docSigningCertificate)
+                Log.i(TAG, "CERTIFICATE:\n$certificateString")
                 verificationStatus.setCountrySigning(VerificationStatus.Verdict.SUCCEEDED, chain)
             } else {
                 Log.w(TAG, "Error getting document signing certificate from EF.SOd")

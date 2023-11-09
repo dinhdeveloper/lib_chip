@@ -7,6 +7,7 @@ import unit.chip.lib_unit_chip.common.StringUtils
 import unit.chip.lib_unit_chip.model.CardEiD
 import unit.chip.lib_unit_chip.model.FeatureStatus
 import unit.chip.lib_unit_chip.model.VerificationStatus
+import unit.chip.lib_unit_chip.public_release.ChipResult
 import unit.chip.libchip.R
 import unit.chip.libchip.base.BaseFragment
 import unit.chip.libchip.databinding.FragmentDetailBinding
@@ -24,7 +25,7 @@ import javax.security.auth.x500.X500Principal
 
 class DetailFragment : BaseFragment<FragmentDetailBinding>() {
 
-    private var receivedPassport: CardEiD? = null
+    private var receivedPassport: ChipResult? = null
     private var simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
 
     override val layoutResourceId: Int
@@ -37,83 +38,7 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>() {
         }
     }
 
-    private fun renderUI(cardEiD: CardEiD) {
-        displayAuthenticationStatus(cardEiD.verificationStatus, cardEiD.featureStatus!!)
-
-        val personDetails = cardEiD.personDetails
-        if (personDetails != null) {
-            val name = personDetails.primaryIdentifier!!.replace("<", "")
-            val surname = personDetails.secondaryIdentifier!!.replace("<", "")
-            viewBinding.valueName.text = getString(R.string.name, name, surname)
-            viewBinding.valueDOB.text = personDetails.dateOfBirth
-            viewBinding.valueGender.text = personDetails.gender?.name
-            viewBinding.valuePassportNumber.text = personDetails.documentNumber
-            viewBinding.valueExpirationDate.text = personDetails.dateOfExpiry
-            viewBinding.valueIssuingState.text = personDetails.issuingState
-            viewBinding.valueNationality.text = personDetails.nationality
-        }
-
-        if (cardEiD.face != null) {
-            viewBinding.iconPhoto.setImageBitmap(cardEiD.face)
-        } else if (cardEiD.portrait != null) {
-            viewBinding.iconPhoto.setImageBitmap(cardEiD.portrait)
-        }
-
-        cardEiD.additionalPersonDetails?.apply {
-            viewBinding.id.text = id
-            viewBinding.birthDay.text = birthDay
-            viewBinding.description.text = description
-            viewBinding.expiredDate.text = expiredDate
-            viewBinding.fatherName.text = fatherName
-            viewBinding.gender.text = gender
-            viewBinding.homeTown.text = homeTown
-            viewBinding.issueDate.text = issueDate
-            viewBinding.motherName.text = motherName
-            viewBinding.name.text = name
-            viewBinding.nation.text = nation
-            viewBinding.nationality.text = nationality
-            viewBinding.oldNumber.text = oldNumber
-            viewBinding.recentLocation.text = recentLocation
-            viewBinding.religion.text = religion
-            viewBinding.valueUnk.text = unkIdNumber
-        }
-
-        val sodFile = cardEiD.sodFile
-        if (sodFile != null) {
-            val countrySigningCertificate = sodFile.issuerX500Principal
-            val dnRFC2253 = countrySigningCertificate.getName(X500Principal.RFC2253)
-            val dnCANONICAL = countrySigningCertificate.getName(X500Principal.CANONICAL)
-            val dnRFC1779 = countrySigningCertificate.getName(X500Principal.RFC1779)
-
-            val name = countrySigningCertificate.name
-            //new X509Certificate(countrySigningCertificate);
-
-            val docSigningCertificate = sodFile.docSigningCertificate
-
-            if (docSigningCertificate != null) {
-                viewBinding.serialNumber.text = docSigningCertificate.serialNumber.toString()
-                viewBinding.publicKey.text = docSigningCertificate.publicKey.algorithm
-                viewBinding.sigAlgName.text = docSigningCertificate.sigAlgName
-
-                try {
-                    viewBinding.thumbprint.text = StringUtils.bytesToHex(
-                        MessageDigest.getInstance("SHA-1").digest(
-                        docSigningCertificate.encoded)).toUpperCase()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                viewBinding.issuerDN.text = docSigningCertificate.issuerDN.name
-                viewBinding.subjectDN.text = docSigningCertificate.subjectDN.name
-                viewBinding.notBefore.text = simpleDateFormat.format(docSigningCertificate.notBefore)
-                viewBinding.notAfter.text = simpleDateFormat.format(docSigningCertificate.notAfter)
-
-            } else {
-                viewBinding.cardViewDocumentSigningCertificate.visibility = View.GONE
-            }
-
-        } else {
-            viewBinding.cardViewDocumentSigningCertificate.visibility = View.GONE
-        }
+    private fun renderUI(cardEiD: ChipResult) {
     }
 
     private fun displayAuthenticationStatus(verificationStatus: VerificationStatus?, featureStatus: FeatureStatus) {

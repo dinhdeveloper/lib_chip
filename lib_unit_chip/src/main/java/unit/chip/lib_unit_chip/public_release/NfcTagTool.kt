@@ -1,4 +1,4 @@
-package unit.chip.lib_unit_chip.common
+package unit.chip.lib_unit_chip.public_release
 
 import android.app.Activity
 import android.content.Intent
@@ -16,15 +16,13 @@ import org.jmrtd.PACEException
 import org.jmrtd.PassportService
 import org.jmrtd.lds.icao.DG1File
 import org.jmrtd.lds.icao.MRZInfo
+import unit.chip.lib_unit_chip.common.StringUtils
 import unit.chip.lib_unit_chip.model.AdditionalPersonDetails
 import unit.chip.lib_unit_chip.model.CardEiD
-import unit.chip.lib_unit_chip.model.NfcError
-import unit.chip.lib_unit_chip.model.NfcOption
 import unit.chip.lib_unit_chip.model.PersonDetails
 import unit.chip.lib_unit_chip.nfc.CardChipNFC
 import unit.chip.lib_unit_chip.nfc.CardEidDTO
 import unit.chip.lib_unit_chip.nfc.CardNfcUtils
-import unit.chip.lib_unit_chip.nfc.NfcCallback
 import java.security.Security
 import java.util.Arrays
 
@@ -37,8 +35,7 @@ import java.util.Arrays
 
 class NfcTagTool private constructor() {
 
-    private var tag: Tag? = null
-    var mActivity: Activity? = null
+    private var mActivity: Activity? = null
     private var nfcAdapter: NfcAdapter? = null
     private var nfcOption: NfcOption? = null
     private var nfcCallback: NfcCallback? = null
@@ -124,7 +121,7 @@ class NfcTagTool private constructor() {
         return runBlocking {
             try {
                 val cardEidDTO = withContext(Dispatchers.IO) {
-                    var cardEid: CardEiD? = null
+                    var chipResult: ChipResult? = null
                     var passportService: PassportService? = null
 
                     try {
@@ -140,22 +137,21 @@ class NfcTagTool private constructor() {
                         )
                         passportService.open()
 
-                        val cardEidNFC = mrzInfo?.let {
-                            CardChipNFC(
-                                passportService,
-                                it,
-                                PassportService.DEFAULT_MAX_BLOCKSIZE
-                            )
-                        }
-                        cardEid = CardEiD()
-                        cardEid.featureStatus = cardEidNFC?.features
-                        cardEid.verificationStatus = cardEidNFC?.verificationStatus
-                        cardEid.sodFile = cardEidNFC?.sodFile
-                        cardEidNFC?.verifySecurity()
+                        val cardEidNFC = CardChipNFC(
+                            passportService,
+                            mrzInfo,
+                            PassportService.DEFAULT_MAX_BLOCKSIZE
+                        )
+                        chipResult = ChipResult()
+                        val cardEid = CardEiD()
+                        cardEid.featureStatus = cardEidNFC.features
+                        cardEid.verificationStatus = cardEidNFC.verificationStatus
+                        cardEid.sodFile = cardEidNFC.sodFile
+                        cardEidNFC.verifySecurity()
 
                         // Basic Information
-                        if (cardEidNFC?.dg1File != null) {
-                            val mrzInfo = (cardEidNFC?.dg1File as DG1File).mrzInfo
+                        if (cardEidNFC.dg1File != null) {
+                            val mrzInfo = (cardEidNFC.dg1File as DG1File).mrzInfo
                             val personDetails = PersonDetails()
                             personDetails.dateOfBirth = mrzInfo.dateOfBirth
                             personDetails.dateOfExpiry = mrzInfo.dateOfExpiry
@@ -172,46 +168,50 @@ class NfcTagTool private constructor() {
                         }
 
                         // Picture
-                        if (cardEidNFC?.dg2File != null) {
+                        if (cardEidNFC.dg2File != null) {
                             try {
                                 val faceImage =
-                                    CardNfcUtils.retrieveFaceImage(cardEidNFC?.dg2File!!)
+                                    CardNfcUtils.retrieveFaceImage(cardEidNFC.dg2File!!)
                                 cardEid.face = faceImage
+                                chipResult.face = faceImage
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
                         }
                         // Portrait Get the picture
-                        if (cardEidNFC?.dg5File != null) {
+                        if (cardEidNFC.dg5File != null) {
                             try {
                                 val faceImage =
-                                    CardNfcUtils.retrievePortraitImage(cardEidNFC?.dg5File!!)
+                                    CardNfcUtils.retrievePortraitImage(cardEidNFC.dg5File!!)
                                 cardEid.portrait = faceImage
+                                chipResult.portrait = faceImage
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
                         }
                         // Fingerprints Get the pictures
-                        if (cardEidNFC?.dg3File != null) {
+                        if (cardEidNFC.dg3File != null) {
                             try {
                                 val bitmaps =
-                                    CardNfcUtils.retrieveFingerPrintImage(cardEidNFC?.dg3File!!)
+                                    CardNfcUtils.retrieveFingerPrintImage(cardEidNFC.dg3File!!)
                                 cardEid.fingerprints = bitmaps
+                                chipResult.fingerprints = bitmaps
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
                         }
                         // Signature Get the pictures
-                        if (cardEidNFC?.dg7File != null) {
+                        if (cardEidNFC.dg7File != null) {
                             try {
                                 val bitmap =
                                     CardNfcUtils.retrieveSignatureImage(cardEidNFC.dg7File!!)
                                 cardEid.signature = bitmap
+                                chipResult.signature = bitmap
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
                         }
-                        val dataGR13 = cardEidNFC?.dGr13File
+                        val dataGR13 = cardEidNFC.dGr13File
                         if (dataGR13 != null) {
                             val personDetails = AdditionalPersonDetails()
                             personDetails.id = dataGR13.id!!
@@ -232,7 +232,42 @@ class NfcTagTool private constructor() {
                             personDetails.oldNumber = dataGR13.oldNumber!!
                             personDetails.unkIdNumber = dataGR13.unkIdNumber!!
                             cardEid.additionalPersonDetails = personDetails
+
+
+                            chipResult.id = dataGR13.id!!
+                            chipResult.name = dataGR13.name!!
+                            chipResult.birthDay = dataGR13.birthDay!!
+                            chipResult.gender = dataGR13.gender!!
+                            chipResult.nationality = dataGR13.nationality!!
+                            chipResult.nation = dataGR13.nation!!
+                            chipResult.religion = dataGR13.religion!!
+                            chipResult.homeTown = dataGR13.homeTown!!
+                            chipResult.recentLocation = dataGR13.recentLocation!!
+                            chipResult.description = dataGR13.description!!
+                            chipResult.issueDate = dataGR13.issueDate!!
+                            chipResult.expiredDate = dataGR13.expiredDate!!
+                            chipResult.fatherName = dataGR13.fatherName!!
+                            chipResult.motherName = dataGR13.motherName!!
+                            chipResult.oldNumber = dataGR13.oldNumber!!
+                            chipResult.unkIdNumber = dataGR13.unkIdNumber!!
                         }
+
+                        val dsCert = cardEid.sodFile?.docSigningCertificate?.let { docSigning ->
+                            StringUtils.encodeToBase64String(docSigning)
+                        }
+
+                        if (dsCert != null) {
+                            chipResult.dsCert = dsCert
+                        }
+                        val certificateString = cardEid.sodFile?.docSigningCertificate?.let {
+                            StringUtils.convertToBase64(
+                                it
+                            )
+                        }
+                        if (certificateString != null) {
+                            chipResult.certificate = certificateString
+                        }
+
                     } catch (e: Exception) {
                         nfcCallback?.onError(NfcError.READ_DATA_FAILURE)
                     } finally {
@@ -242,9 +277,9 @@ class NfcTagTool private constructor() {
                             ex.printStackTrace()
                         }
                     }
-                    CardEidDTO(cardEid, nfcCallback,null)
+                    CardEidDTO(chipResult, nfcCallback,null)
                 }
-                nfcCallback?.onSuccess(cardEidDTO.cardEiD)
+                nfcCallback?.onSuccess(cardEidDTO.chipResult)
                 cardEidDTO
             } catch (e: Exception) {
                 when (e) {

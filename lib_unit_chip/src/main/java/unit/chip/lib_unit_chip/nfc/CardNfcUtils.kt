@@ -49,7 +49,7 @@ object CardNfcUtils {
     private val TAG = CardNfcUtils::class.java.simpleName
 
 
-    private val IS_PKIX_REVOCATION_CHECING_ENABLED = false
+    private const val IS_PKIX_REVOCATION_CHECING_ENABLED = false
 
     init {
         Security.addProvider(BouncyCastleProvider())
@@ -240,7 +240,7 @@ object CardNfcUtils {
      *
      * @return the certificate chain
      */
-    fun getCertificateChain(
+    private fun getCertificateChain(
         docSigningCertificate: X509Certificate?,
         sodIssuer: X500Principal,
         sodSerialNumber: BigInteger,

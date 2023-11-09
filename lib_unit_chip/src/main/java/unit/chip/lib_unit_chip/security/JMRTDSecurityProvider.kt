@@ -23,31 +23,29 @@ class JMRTDSecurityProvider private constructor() :
         put("CertStore.BKS", "org.jmrtd.cert.KeyStoreCertStoreSpi")
         put("CertStore.PKCS12", "org.jmrtd.cert.KeyStoreCertStoreSpi")
 
-        if (BC_PROVIDER != null) {
-            /* But these work fine. */
-            replicateFromProvider("CertificateFactory", "X.509", bouncyCastleProvider!!)
-            replicateFromProvider("CertStore", "Collection", bouncyCastleProvider!!)
-            //			replicateFromProvider("KeyStore", "JKS", SUN_PROVIDER);
-            replicateFromProvider("MessageDigest", "SHA1", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA1withRSA/ISO9796-2", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "MD2withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "MD4withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "MD5withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA1withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA1withRSA/ISO9796-2", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA256withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA256withRSA/ISO9796-2", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA384withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA384withRSA/ISO9796-2", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA512withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA512withRSA/ISO9796-2", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA224withRSA", bouncyCastleProvider!!)
-            replicateFromProvider("Signature", "SHA224withRSA/ISO9796-2", bouncyCastleProvider!!)
+        /* But these work fine. */
+        replicateFromProvider("CertificateFactory", "X.509", bouncyCastleProvider!!)
+        replicateFromProvider("CertStore", "Collection", bouncyCastleProvider!!)
+        //			replicateFromProvider("KeyStore", "JKS", SUN_PROVIDER);
+        replicateFromProvider("MessageDigest", "SHA1", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA1withRSA/ISO9796-2", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "MD2withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "MD4withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "MD5withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA1withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA1withRSA/ISO9796-2", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA256withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA256withRSA/ISO9796-2", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA384withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA384withRSA/ISO9796-2", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA512withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA512withRSA/ISO9796-2", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA224withRSA", bouncyCastleProvider!!)
+        replicateFromProvider("Signature", "SHA224withRSA/ISO9796-2", bouncyCastleProvider!!)
 
-            replicateFromProvider("Signature", "SHA256withRSA/PSS", bouncyCastleProvider!!)
-            put("Alg.Alias.Mac.ISO9797Alg3Mac", "ISO9797ALG3MAC")
-            put("Alg.Alias.CertificateFactory.X509", "X.509")
-        }
+        replicateFromProvider("Signature", "SHA256withRSA/PSS", bouncyCastleProvider!!)
+        put("Alg.Alias.Mac.ISO9797Alg3Mac", "ISO9797ALG3MAC")
+        put("Alg.Alias.CertificateFactory.X509", "X.509")
     }
 
     private fun replicateFromProvider(
@@ -75,7 +73,7 @@ class JMRTDSecurityProvider private constructor() :
         private val SC_PROVIDER = org.spongycastle.jce.provider.BouncyCastleProvider()
 
         //			getProviderOrNull(SC_PROVIDER_CLASS_NAME);
-        val instance: Provider = JMRTDSecurityProvider()
+        private val instance: Provider = JMRTDSecurityProvider()
 
         init {
             Security.insertProviderAt(org.spongycastle.jce.provider.BouncyCastleProvider(), 1)

@@ -1,11 +1,0 @@
-
-^kotlin:S1172N":Use "_" instead of this unused lambda parameter "context".(Ğ†ä‘ûÿÿÿÿ8ƒØ¿Èº1
-Okotlin:S1481e"+Remove this unused "dsCert" local variable.(ëãùêúÿÿÿÿ8ŸìàÉº1
->kotlin:S1128"Remove this unused import.(ÊÒÅ­ùÿÿÿÿ8 ìàÉº1
-9kotlin:S1128"Remove this unused import.(´Ùí8…Ø¿Èº1
-Bkotlin:S125#"Remove this commented out code.(’–ÎËùÿÿÿÿ8†Ø¿Èº1
-Bkotlin:S125T"Remove this commented out code.(¡£“†úÿÿÿÿ8‡Ø¿Èº1
-Gkotlin:S1874="#Deprecated code should not be used.(šŞï–ûÿÿÿÿ8‡Ø¿Èº1
-Gkotlin:S1874X"#Deprecated code should not be used.(çéúÜÿÿÿÿÿ8‡Ø¿Èº1
-Wkotlin:S11448"3Remove this unused private "createDummyMrz" method.(”«™÷ûÿÿÿÿ8ˆØ¿Èº1
-Rkotlin:S1066L".Merge this "if" statement with the nested one.(­‚¦›ùÿÿÿÿ8‰Ø¿Èº1

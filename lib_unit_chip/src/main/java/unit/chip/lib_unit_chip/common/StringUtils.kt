@@ -43,15 +43,13 @@ object StringUtils {
 
     fun encodeToBase64String(certificate: Certificate): String? {
         val convertToBase64PEMString = certificateToBase64PEM(certificate)
-        return if (convertToBase64PEMString != null) {
+        return run {
             val encoder = Base64.getEncoder()
             val bytes = convertToBase64PEMString.toByteArray(Charsets.UTF_8)
             encoder.encodeToString(bytes)
-        } else {
-            null
         }
     }
-    fun certificateToBase64PEM(certificate: Certificate): String {
+    private fun certificateToBase64PEM(certificate: Certificate): String {
         val stringWriter = StringWriter()
         val pemWriter = JcaPEMWriter(stringWriter)
         pemWriter.writeObject(certificate)

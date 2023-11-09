@@ -21,7 +21,6 @@ class CardEiD : Parcelable {
     var personDetails: PersonDetails? = null
     var additionalPersonDetails: AdditionalPersonDetails? = null
     var personOptionalDetails: PersonOptionalDetails? = null
-    //var personAdditionalDetails: PersonAdditionalDetails? = null
     var featureStatus: FeatureStatus? = null
     var verificationStatus: VerificationStatus? = null
 

@@ -19,11 +19,9 @@ import net.sf.scuba.data.Gender
 import org.jmrtd.lds.icao.MRZInfo
 import unit.chip.libchip.R
 import unit.chip.libchip.base.BaseFragment
-import unit.chip.libchip.common.BottomSheetScanNFC
 import unit.chip.libchip.common.LoadingScreen
 import unit.chip.libchip.common.Utils
 import unit.chip.libchip.databinding.FragmentMrzBinding
-import unit.chip.libchip.ui.activity.MainActivity
 
 
 /**
