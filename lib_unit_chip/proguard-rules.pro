@@ -5,7 +5,7 @@
 -keep class unit.chip.lib_unit_chip.public_release.NfcCallback {
     *;
 }
--keep class unit.chip.lib_unit_chip.public_release.NfcError {
+-keep enum unit.chip.lib_unit_chip.public_release.NfcError {
     *;
 }
 -keep class unit.chip.lib_unit_chip.public_release.NfcOption {

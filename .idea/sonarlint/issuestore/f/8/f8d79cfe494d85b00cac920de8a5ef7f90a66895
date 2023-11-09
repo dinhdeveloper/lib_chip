@@ -1,0 +1,10 @@
+
+ykotlin:S6306”"TUsing "GlobalScope" here leads to the breaking of structured concurrency principles.( ØÖâûÿÿÿÿ8²Æ¹»1
+>kotlin:S1128"Remove this unused import.(èãÊõûÿÿÿÿ8ÆÈ°òº1
+>kotlin:S1128	"Remove this unused import.(¹²…åøÿÿÿÿ8ÆÈ°òº1
+>kotlin:S1128"Remove this unused import.(ŞŠ‹Ùüÿÿÿÿ8ÆÈ°òº1
+Hkotlin:S1874±"#Deprecated code should not be used.(ÑÚ¼Ùøÿÿÿÿ8İÆ¹»1
+wkotlin:S3776¥"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(Ÿˆòüÿÿÿÿ8áÆ¹»1
+rkotlin:S3776ß"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(Ãî 8âÆ¹»1
+wkotlin:S117Í"SRename this local variable to match the regular expression ^`?[_a-z][a-zA-Z0-9]*`?$(È¤Éüÿÿÿÿ8åÆ¹»1
+<kotlin:S5542…"Use a secure padding scheme.(²Ö€8…Ç¹»1

@@ -12,7 +12,7 @@ import org.jmrtd.lds.SODFile
  */
 
 
-data class ChipResult(
+class ChipResult(
     var face: Bitmap? = null,
     var portrait: Bitmap? = null,
     var signature: Bitmap? = null,

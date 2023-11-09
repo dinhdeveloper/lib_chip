@@ -11,7 +11,7 @@ import android.os.Parcel
 
 
 
-data class NfcOption(
+class NfcOption(
     val accessToken: String = "",
     val tokenId: String = "",
     val tokenKey: String = "",
